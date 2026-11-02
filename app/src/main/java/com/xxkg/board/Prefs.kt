@@ -60,6 +60,26 @@ class Prefs(ctx: Context) {
     val isLoggedIn: Boolean
         get() = cookie.isNotEmpty() && uid.isNotEmpty()
 
+    /** 是否主动退出过登录（区别于 Cookie 过期） */
+    var loggedOut: Boolean
+        get() = sp.getBoolean(K_LOGGED_OUT, false)
+        set(v) = sp.edit().putBoolean(K_LOGGED_OUT, v).apply()
+
+    /** 退出登录：清账号、课程、作业缓存；保留时间窗口/排序等本机设置 */
+    fun clearAccount() {
+        sp.edit()
+            .remove(K_COOKIE)
+            .remove(K_UID)
+            .remove(K_PUID)
+            .remove(K_NAME)
+            .remove(K_CACHE)
+            .remove(K_STATE)
+            .remove(K_DELETED)
+            .remove(K_SYNC)
+            .apply()
+        loggedOut = true
+    }
+
     /** 设备唯一标识，用于伪装官方 UA */
     val uniqueId: String
         get() {
@@ -136,6 +156,7 @@ class Prefs(ctx: Context) {
         private const val K_DELETED = "deleted"
         private const val K_STATE = "states"
         private const val K_UNIQ = "unique_id"
+        private const val K_LOGGED_OUT = "logged_out"
 
         @Volatile
         private var instance: Prefs? = null

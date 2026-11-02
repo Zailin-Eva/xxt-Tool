@@ -93,8 +93,12 @@ class ParserTest {
     @Test
     fun `解析作业详情的时间`() {
         val d = HtmlParsers.parseWorkDetail(workDetailHtml)
+        assertTrue(d.start > 0)
         assertTrue(d.end > 0)
         val cal = Calendar.getInstance()
+        cal.timeInMillis = d.start
+        assertEquals(10, cal.get(Calendar.MONTH) + 1)
+        assertEquals(29, cal.get(Calendar.DAY_OF_MONTH))
         cal.timeInMillis = d.end
         assertEquals(2027, cal.get(Calendar.YEAR))
         assertEquals(1, cal.get(Calendar.MONTH) + 1)
@@ -111,6 +115,7 @@ class ParserTest {
         val d = HtmlParsers.parseExamDetail(examDetailHtml)
         assertEquals(TimeFmt.parseDate("2026-06-18 14:39"), d.submit)
         assertEquals("92", d.score)
+        assertEquals(0L, d.start)
     }
 
     @Test

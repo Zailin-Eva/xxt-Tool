@@ -13,8 +13,8 @@ android {
         applicationId = "com.xxkg.board"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 20000
+        versionName = "2.0.0"
     }
 
     // 签名信息放在仓库外的 keystore.properties（已 gitignore）；
@@ -38,6 +38,7 @@ android {
     buildTypes {
         debug {
             isMinifyEnabled = false
+            versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = true

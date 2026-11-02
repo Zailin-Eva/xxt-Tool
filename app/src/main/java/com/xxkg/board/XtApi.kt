@@ -154,6 +154,94 @@ class XtApi(private val prefs: Prefs) {
         return HtmlParsers.parseExamList(get(url, referer = "$WEB/"), courseId, classId)
     }
 
+    // ---------------------------------------------------------------- 答题页
+
+    /**
+     * 详情页 → 真正的答题页。
+     *
+     * 列表里的 url 是 /work/phone/task-work?...，它只是入口页；
+     * 直接把它交给 WebView，经常会停在课程首页/作业列表。
+     * 这里用已登录 Cookie 取一次详情页 HTML，解析出 mooc-ans 答题地址。
+     */
+    fun resolveAnswerUrl(taskUrl: String): String? {
+        if (taskUrl.isEmpty()) return null
+        val html = try {
+            get(taskUrl, referer = "$WEB/")
+        } catch (e: Exception) {
+            DebugLog.log("解析答题页失败: ${e.message}")
+            return null
+        }
+        val resolved = HtmlParsers.extractAnswerUrl(html)
+        if (resolved != null) {
+            DebugLog.log("答题页: ${resolved.take(120)}")
+        } else {
+            DebugLog.log("未找到答题页: ${taskUrl.take(100)}")
+        }
+        return resolved
+    }
+
+    /** 重新抓一次当前条目的详情，补开始/截止时间和分数。 */
+    fun fetchTaskDetail(task: Task): Task {
+        if (task.url.isEmpty()) return task
+        val html = try {
+            get(task.url, referer = "$WEB/")
+        } catch (e: Exception) {
+            DebugLog.log("刷新详情失败: ${e.message}")
+            return task
+        }
+        if (task.type == TaskType.WORK) {
+            val d = HtmlParsers.parseWorkDetail(html)
+            if (d.start > 0) task.startTime = d.start
+            if (d.end > 0) task.endTime = d.end
+            if (d.score.isNotEmpty()) task.grade = d.score
+        } else {
+            val d = HtmlParsers.parseExamDetail(html)
+            if (d.start > 0) task.startTime = d.start
+            if (d.submit > 0) task.stageTime = d.submit
+            if (d.score.isNotEmpty()) task.grade = d.score
+        }
+        return task
+    }
+
+    /** 只重新拉当前课程列表，更新这一条的状态（提交后变待批阅）。 */
+    fun refreshTaskStatus(task: Task): Task {
+        if (task.courseId.isEmpty() || task.classId.isEmpty()) return task
+        val list = try {
+            when (task.type) {
+                TaskType.WORK -> fetchWorkList(task.courseId, task.classId)
+                TaskType.EXAM -> fetchExamList(task.courseId, task.classId)
+            }
+        } catch (e: Exception) {
+            DebugLog.log("刷新状态失败: ${e.message}")
+            return task
+        }
+        val found = list.firstOrNull { it.key == task.key } ?: return task
+        task.status = found.status
+        if (found.grade.isNotEmpty()) task.grade = found.grade
+        if (found.endTime > 0) task.endTime = found.endTime
+        if (found.publishTime > 0) task.publishTime = found.publishTime
+        if (found.url.isNotEmpty()) task.url = found.url
+        return task
+    }
+
+    /** 待批阅作业 →“修改作业”地址；找不到返回 null。 */
+    fun resolveModifyUrl(taskUrl: String): String? {
+        if (taskUrl.isEmpty()) return null
+        val html = try {
+            get(taskUrl, referer = "$WEB/")
+        } catch (e: Exception) {
+            DebugLog.log("解析修改作业失败: ${e.message}")
+            return null
+        }
+        val url = HtmlParsers.extractModifyUrl(html)
+        if (url != null) {
+            DebugLog.log("修改作业: ${url.take(120)}")
+        } else {
+            DebugLog.log("未找到修改作业入口: ${taskUrl.take(100)}")
+        }
+        return url
+    }
+
     // ---------------------------------------------------------------- 汇总
 
     data class Snapshot(val tasks: List<Task>, val errors: List<String>)
@@ -240,10 +328,12 @@ class XtApi(private val prefs: Prefs) {
                                 val html = get(t.url, referer = "$WEB/")
                                 if (t.type == TaskType.WORK) {
                                     val d = HtmlParsers.parseWorkDetail(html)
+                                    if (d.start > 0) t.startTime = d.start
                                     if (d.end > 0) t.endTime = d.end
                                     if (d.score.isNotEmpty()) t.grade = d.score
                                 } else {
                                     val d = HtmlParsers.parseExamDetail(html)
+                                    if (d.start > 0) t.startTime = d.start
                                     if (d.submit > 0) t.stageTime = d.submit
                                     if (d.score.isNotEmpty()) t.grade = d.score
                                     // 「老师按人发放，无需作答」的考试不是给我的，直接丢掉

@@ -1,4 +1,4 @@
-# 一次性下载 Android 编译工具链（默认放到 <项目>\toolchain，可用 XXKG_TOOL_DIR 覆盖）
+﻿# 一次性下载 Android 编译工具链（默认放到 <项目>\toolchain，可用 XXKG_TOOL_DIR 覆盖）
 # JDK=清华源, SDK=腾讯源, Gradle=腾讯源
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'

@@ -1,4 +1,4 @@
-# 编译 APK（工具链默认在 <项目>\toolchain，可用 XXKG_TOOL_DIR 覆盖）
+﻿# 编译 APK（工具链默认在 <项目>\toolchain，可用 XXKG_TOOL_DIR 覆盖）
 $ErrorActionPreference = 'Stop'
 $proj = Split-Path $PSScriptRoot -Parent
 $tool = if ($env:XXKG_TOOL_DIR) { $env:XXKG_TOOL_DIR } else { Join-Path $proj 'toolchain' }
@@ -15,7 +15,11 @@ $task = if ($args.Count -gt 0) { $args[0] } else { ':app:assembleDebug' }
 & $gradle -p $proj --no-daemon $task
 if ($LASTEXITCODE -ne 0) { throw "gradle 失败，退出码 $LASTEXITCODE" }
 
-$apk = Join-Path $proj 'app\build\outputs\apk\debug\app-debug.apk'
+$apk = if ($task -match 'Release') {
+    Join-Path $proj 'app\build\outputs\apk\release\app-release.apk'
+} else {
+    Join-Path $proj 'app\build\outputs\apk\debug\app-debug.apk'
+}
 if (Test-Path $apk) {
     "=============================================="
     "APK: $apk"

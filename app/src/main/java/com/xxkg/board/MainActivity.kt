@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSort: TextView
     private lateinit var tvRange: TextView
     private lateinit var tvEmpty: TextView
+    private lateinit var btnLogin: TextView
+    private lateinit var emptyBox: android.view.View
     private lateinit var swipe: SwipeRefreshLayout
     private lateinit var list: RecyclerView
     private val tabs = ArrayList<TextView>()
@@ -54,8 +56,14 @@ class MainActivity : AppCompatActivity() {
         tvSort = findViewById(R.id.tvSort)
         tvRange = findViewById(R.id.tvRange)
         tvEmpty = findViewById(R.id.tvEmpty)
+        btnLogin = findViewById(R.id.btnLogin)
+        emptyBox = findViewById(R.id.emptyBox)
         swipe = findViewById(R.id.swipe)
         list = findViewById(R.id.list)
+
+        btnLogin.setOnClickListener {
+            startActivityForResult(Intent(this, LoginActivity::class.java), REQ_LOGIN)
+        }
 
         tabs.add(findViewById(R.id.tab0))
         tabs.add(findViewById(R.id.tab1))
@@ -102,9 +110,9 @@ class MainActivity : AppCompatActivity() {
         render()
 
         if (!prefs.isLoggedIn) {
-            if (all.isEmpty()) {
+            if (all.isEmpty() && !prefs.loggedOut) {
                 startActivityForResult(Intent(this, LoginActivity::class.java), REQ_LOGIN)
-            } else {
+            } else if (all.isNotEmpty()) {
                 toast("登录已失效，先显示上次缓存")
             }
         } else {
@@ -114,7 +122,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // 详情页/退出登录可能改了本地缓存，重新读一遍再渲染
+        all = Task.decode(prefs.cache)
         render()
+        // 从别处登录成功回来（缓存为空且从未同步过）时自动抓一次
+        if (prefs.isLoggedIn && all.isEmpty() && prefs.lastSync == 0L && !refreshing) {
+            refresh()
+        }
     }
 
     override fun onDestroy() {
@@ -125,6 +139,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_LOGIN && resultCode == Activity.RESULT_OK) {
+            prefs.loggedOut = false
             refresh()
         }
     }
@@ -145,7 +160,10 @@ class MainActivity : AppCompatActivity() {
         tvRange.text = "待批阅 ${prefs.xDays} 天 / 已完成 ${prefs.yDays} 天"
 
         // 顶部卡片
-        val first = buckets.todo.firstOrNull()
+        // 顶部卡片始终取真正最近截止的一条，不受当前排序方式影响
+        val first = buckets.todo.minByOrNull {
+            if (it.endTime > 0) it.endTime else Long.MAX_VALUE
+        }
         if (first == null) {
             tvNearestTitle.text = "暂无未完成作业"
             tvNearestMeta.text = if (prefs.isLoggedIn) "下拉可刷新" else "请先登录学习通"
@@ -188,16 +206,22 @@ class MainActivity : AppCompatActivity() {
         adapter.submit(data, tab)
 
         if (data.isEmpty()) {
-            tvEmpty.visibility = android.view.View.VISIBLE
+            emptyBox.visibility = android.view.View.VISIBLE
+            btnLogin.visibility = if (!prefs.isLoggedIn) {
+                android.view.View.VISIBLE
+            } else {
+                android.view.View.GONE
+            }
             tvEmpty.text = when {
-                !prefs.isLoggedIn -> "请先登录学习通账号"
+                !prefs.isLoggedIn -> "登录后查看课程、作业和考试"
                 tab == 0 -> "没有未完成的作业 / 考试"
                 tab == 1 -> "近 ${prefs.xDays} 天没有待批阅的作业"
                 tab == 2 -> "近 ${prefs.yDays} 天没有已完成的作业"
                 else -> "没有已过期未交的作业"
             }
         } else {
-            tvEmpty.visibility = android.view.View.GONE
+            emptyBox.visibility = android.view.View.GONE
+            btnLogin.visibility = android.view.View.GONE
         }
     }
 
@@ -206,7 +230,8 @@ class MainActivity : AppCompatActivity() {
     private fun refresh() {
         if (refreshing) return
         if (!prefs.isLoggedIn) {
-            startActivityForResult(Intent(this, LoginActivity::class.java), REQ_LOGIN)
+            swipe.isRefreshing = false
+            toast("请先登录学习通")
             return
         }
         refreshing = true
@@ -233,13 +258,8 @@ class MainActivity : AppCompatActivity() {
     // ------------------------------------------------------------ 交互
 
     private fun openTask(t: Task) {
-        if (t.url.isEmpty()) {
-            toast("这条没有可打开的页面")
-            return
-        }
-        val i = Intent(this, WebActivity::class.java)
-        i.putExtra(WebActivity.EXTRA_URL, t.url)
-        i.putExtra(WebActivity.EXTRA_TITLE, t.title)
+        val i = Intent(this, TaskDetailActivity::class.java)
+        i.putExtra(TaskDetailActivity.EXTRA_TASK_KEY, t.key)
         startActivity(i)
     }
 

@@ -8,7 +8,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
+import android.view.View
 import android.webkit.CookieManager
+import android.webkit.WebStorage
+import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -29,6 +32,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnX: TextView
     private lateinit var btnY: TextView
     private lateinit var btnRestore: TextView
+    private lateinit var btnLogout: TextView
+    private lateinit var btnRelogin: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,16 +45,19 @@ class SettingsActivity : AppCompatActivity() {
         btnX = findViewById(R.id.btnX)
         btnY = findViewById(R.id.btnY)
         btnRestore = findViewById(R.id.btnRestore)
+        btnLogout = findViewById(R.id.btnLogout)
+        btnRelogin = findViewById(R.id.btnRelogin)
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.tvVersion).text = "作业看板 v" + versionName() + " · 仅本机使用"
-        findViewById<TextView>(R.id.btnRelogin).setOnClickListener {
+        btnRelogin.setOnClickListener {
             startActivityForResult(Intent(this, LoginActivity::class.java), REQ_LOGIN)
         }
         findViewById<TextView>(R.id.btnRefresh).setOnClickListener { refreshNow() }
         findViewById<TextView>(R.id.btnLog).setOnClickListener { showLog() }
         findViewById<TextView>(R.id.btnClear).setOnClickListener { confirmClear() }
         btnRestore.setOnClickListener { confirmRestore() }
+        btnLogout.setOnClickListener { confirmLogout() }
         btnX.setOnClickListener { editDays("待批阅时间窗口（天）", prefs.xDays) { prefs.xDays = it } }
         btnY.setOnClickListener { editDays("已完成保留时间（天）", prefs.yDays) { prefs.yDays = it } }
 
@@ -84,6 +92,8 @@ class SettingsActivity : AppCompatActivity() {
         }
         btnX.text = "${prefs.xDays} 天"
         btnY.text = "${prefs.yDays} 天"
+        btnRelogin.text = if (prefs.isLoggedIn) "重新登录" else "登录学习通"
+        btnLogout.visibility = if (prefs.isLoggedIn) View.VISIBLE else View.GONE
         val n = prefs.deletedKeys().size
         btnRestore.text = if (n > 0) "恢复被清理的条目（$n）" else "恢复被清理的条目"
     }
@@ -146,6 +156,29 @@ class SettingsActivity : AppCompatActivity() {
                 val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 cm.setPrimaryClip(ClipData.newPlainText("抓取日志", DebugLog.dump()))
                 toast("日志已复制到剪贴板")
+            }
+            .show()
+    }
+
+    private fun confirmLogout() {
+        AlertDialog.Builder(this)
+            .setTitle("退出登录")
+            .setMessage("会清除本机保存的登录态、课程和作业缓存，需要重新登录学习通。确定吗？")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("退出") { _, _ ->
+                prefs.clearAccount()
+                DebugLog.clear()
+                CookieManager.getInstance().removeAllCookies(null)
+                CookieManager.getInstance().flush()
+                WebStorage.getInstance().deleteAllData()
+                WebView(this).apply {
+                    clearCache(true)
+                    destroy()
+                }
+                val i = Intent(this, MainActivity::class.java)
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(i)
+                finish()
             }
             .show()
     }

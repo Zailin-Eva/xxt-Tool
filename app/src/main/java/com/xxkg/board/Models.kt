@@ -26,6 +26,8 @@ class Task(
     var status: TaskStatus = TaskStatus.TODO,
     var endTime: Long = 0L,
     var publishTime: Long = 0L,
+    /** 详情页里的开始时间（列表页只有发布日期，详情页才有精确时间） */
+    var startTime: Long = 0L,
     /** 进入当前状态的时刻：未交/过期=发布时间，待批阅=观测到已交的时刻 */
     var stageTime: Long = 0L,
     var grade: String = "",
@@ -43,6 +45,7 @@ class Task(
         o.put("st", status.name)
         o.put("et", endTime)
         o.put("pt", publishTime)
+        o.put("stt", startTime)
         o.put("stg", stageTime)
         o.put("g", grade)
         o.put("u", url)
@@ -61,6 +64,7 @@ class Task(
             status = runCatching { TaskStatus.valueOf(o.optString("st")) }.getOrDefault(TaskStatus.TODO),
             endTime = o.optLong("et"),
             publishTime = o.optLong("pt"),
+            startTime = o.optLong("stt"),
             stageTime = o.optLong("stg"),
             grade = o.optString("g"),
             url = o.optString("u"),

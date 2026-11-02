@@ -9,6 +9,8 @@
 - 支持 Android 7.0（API 24）及以上
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
 
+当前版本：**2.0.0**（versionCode 20000），版本规则见 [VERSIONING.md](VERSIONING.md)。
+
 ## 功能
 
 | 栏目 | 规则 |
@@ -23,9 +25,21 @@
 - 顶部卡片显示「距最近截止日期的作业」大倒计时
 - 「待批阅 7 天 / 已完成 7 天」两个窗口随时可调（1–365）
 - 单条**长按 → 移除**，可在「个人」页恢复
-- 点任意一条直接打开学习通对应页面，方便去交作业
+- 点任意一条先进入**详情页**：展示发布时间、截止时间、剩余时间、状态和分数，再选择「查看作业详情」或「开始答题 / 修改作业 / 查看作业」；作业页长按标题可查看「页面诊断」
+- 待批阅作业可从详情页进入学习通「修改作业」界面
+- 「个人 → 退出登录」清空本机账号、课程与作业缓存，回到空白的未登录界面，可换号登录
 - 下拉刷新；打开 App 自动刷新
 - 「个人 → 抓取日志」可查看每一步请求结果，一键复制，方便排查接口变动
+
+## 版本规则
+
+采用 `MAJOR.MINOR.PATCH`，应用名始终不变：
+
+- **MAJOR**：不兼容变更（数据结构、minSdk、包名/签名、大改版），同时清零 MINOR/PATCH；
+- **MINOR**：新增用户可见功能，清零 PATCH；
+- **PATCH**：只修 Bug/文案/样式。
+
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.0.0 = 20000。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -51,8 +65,11 @@
 
 两种方式：
 
-1. 直接下载仓库里的安装包：**[`dist/chaoxing-board-v1.0.0.apk`](dist/chaoxing-board-v1.0.0.apk)**（约 1 MB）
+1. 直接下载仓库里的安装包：**[`dist/chaoxing-board-v2.0.0.apk`](dist/chaoxing-board-v2.0.0.apk)**（2.0.0 正式签名）
 2. 到 [Releases](../../releases) 页面下载
+
+> **2.0.0 换了新的正式签名 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次，再装 2.0.0；之后 2.0.x/2.1.x 都可以直接覆盖安装。卸载会清掉登录，重新登录即可。
+> 开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.0.0-debug`）。正式发布包用 `scripts/release.ps1` 生成。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
@@ -70,7 +87,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup_env.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 :app:assembleRelease
 
-# 3. 跑单元测试
+# 3. 打正式发布包（签名、复制到 dist/、算 SHA-256）
+powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
+
+# 4. 跑单元测试
 powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 :app:testDebugUnitTest
 ```
 
@@ -91,8 +111,9 @@ keyPassword=******
 app/src/main/java/com/xxkg/board/
 ├─ MainActivity.kt      主界面（四栏、排序、刷新）
 ├─ LoginActivity.kt     内嵌学习通登录页
-├─ WebActivity.kt       打开具体作业页面
-├─ SettingsActivity.kt  个人页（时间窗口、日志、清理）
+├─ TaskDetailActivity.kt 作业/考试详情页（时间、状态、动作）
+├─ WebActivity.kt       打开具体作业/答题页面
+├─ SettingsActivity.kt  个人页（时间窗口、日志、清理、退出登录）
 ├─ XtApi.kt             抓取：课程/作业/考试/详情 + 状态变化追踪
 ├─ HtmlParsers.kt       H5 页面解析
 ├─ Logic.kt             时间格式化 + 四栏分类规则
@@ -104,6 +125,8 @@ app/src/main/java/com/xxkg/board/
 app/src/test/           单元测试（规则引擎 + 解析器）
 app/src/debug/          仅调试包的登录态注入入口（不进正式包）
 scripts/                环境准备、编译、接口探测脚本
+VERSIONING.md           版本规则
+CHANGELOG.md            更新日志
 ```
 
 ## 说明与限制

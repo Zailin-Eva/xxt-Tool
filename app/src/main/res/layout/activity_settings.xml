@@ -218,6 +218,20 @@
                     android:background="#EEEEEE" />
 
                 <TextView
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:gravity="center_vertical"
+                    android:text="退出登录"
+                    android:textColor="#D0021B"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#EEEEEE" />
+
+                <TextView
                     android:id="@+id/btnClear"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"

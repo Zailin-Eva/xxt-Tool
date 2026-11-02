@@ -94,6 +94,7 @@ class LoginActivity : AppCompatActivity() {
         prefs.cookie = Cookies.header(map)
         prefs.uid = map["_uid"].orEmpty()
         prefs.puid = map["sso_puid"] ?: map["_tid"] ?: ""
+        prefs.loggedOut = false
         CookieManager.getInstance().flush()
         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show()
         setResult(Activity.RESULT_OK, Intent())

@@ -196,17 +196,39 @@
                 android:scrollbars="none" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <TextView
-            android:id="@+id/tvEmpty"
+        <LinearLayout
+            android:id="@+id/emptyBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="24dp"
-            android:text=""
-            android:textColor="#999999"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text=""
+                android:textColor="#999999"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/btnLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/box"
+                android:gravity="center"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="登录学习通"
+                android:textColor="#111111"
+                android:textSize="13sp"
+                android:visibility="gone" />
+        </LinearLayout>
     </FrameLayout>
 
     <View
