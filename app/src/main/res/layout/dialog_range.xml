@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="12dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="待批阅只显示最近提交的"
+            android:textColor="#111111"
+            android:textSize="13sp" />
+
+        <EditText
+            android:id="@+id/etX"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#111111"
+            android:gravity="end"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textColor="#111111"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" 天"
+            android:textColor="#666666"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="已完成保留"
+            android:textColor="#111111"
+            android:textSize="13sp" />
+
+        <EditText
+            android:id="@+id/etY"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#111111"
+            android:gravity="end"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textColor="#111111"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" 天"
+            android:textColor="#666666"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="待批阅超过 x 天后移入「已完成」，再保留 y 天后隐藏。范围 1–365。"
+        android:textColor="#999999"
+        android:textSize="11sp" />
+</LinearLayout>

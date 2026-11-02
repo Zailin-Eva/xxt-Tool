@@ -1,0 +1,25 @@
+# Gradle / Android
+*.iml
+.gradle/
+.idea/
+local.properties
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# 签名
+*.jks
+*.keystore
+keystore.properties
+
+# 本地参考资料（第三方源码，不随仓库分发）
+reference/
+
+# 运行时临时产物
+*.log
+cookie*.txt
+
+toolchain/

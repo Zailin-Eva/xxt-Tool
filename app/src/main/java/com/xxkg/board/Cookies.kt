@@ -1,0 +1,47 @@
+package com.xxkg.board
+
+import android.webkit.CookieManager
+
+/** 从 WebView 的 CookieManager 里收集 chaoxing 全站 Cookie。 */
+object Cookies {
+
+    private val HOSTS = listOf(
+        "https://chaoxing.com",
+        "https://i.chaoxing.com",
+        "https://mooc1.chaoxing.com",
+        "https://mooc1-api.chaoxing.com",
+        "https://mooc2-ans.chaoxing.com",
+        "https://passport2.chaoxing.com",
+        "https://passport2-api.chaoxing.com",
+        "https://mobilelearn.chaoxing.com",
+        "https://notice.chaoxing.com"
+    )
+
+    fun harvest(): Map<String, String> {
+        val cm = CookieManager.getInstance()
+        val map = LinkedHashMap<String, String>()
+        for (h in HOSTS) {
+            val raw = try {
+                cm.getCookie(h)
+            } catch (e: Exception) {
+                null
+            } ?: continue
+            for (part in raw.split(";")) {
+                val idx = part.indexOf('=')
+                if (idx > 0) {
+                    val k = part.substring(0, idx).trim()
+                    val v = part.substring(idx + 1).trim()
+                    if (k.isNotEmpty()) map[k] = v
+                }
+            }
+        }
+        return map
+    }
+
+    fun header(map: Map<String, String>): String =
+        map.entries.joinToString("; ") { "${it.key}=${it.value}" }
+
+    /** 判定是否已经登录成功 */
+    fun looksLoggedIn(map: Map<String, String>): Boolean =
+        map.containsKey("_uid") || map.containsKey("_d") || map.containsKey("uf")
+}
