@@ -129,6 +129,9 @@ class MainActivity : AppCompatActivity() {
         if (prefs.isLoggedIn && all.isEmpty() && prefs.lastSync == 0L && !refreshing) {
             refresh()
         }
+        if (prefs.isLoggedIn) {
+            UpdateManager.maybeAutoCheck(this)
+        }
     }
 
     override fun onDestroy() {

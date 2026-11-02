@@ -31,8 +31,8 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 
 ## 版本名与调试包
 
-- 正式版本名：`2.0.0`。
-- debug 包自动追加后缀：`2.0.0-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
+- 正式版本名：`2.1.0`。
+- debug 包自动追加后缀：`2.1.0-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
 - 应用名不变；「个人」页底部显示实际版本名。
 
 ## 签名与备份
@@ -42,10 +42,17 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 - 请把 `signing/xxkg-release.jks` 和 `keystore.properties` 备份到密码管理器/加密 U 盘/可信云盘。密码在 `keystore.properties` 里。
 - 丢失 keystore 或密码后，未来版本无法覆盖安装，只能换新 key 再让用户卸载重装一次。
 
+## Release 发布凭据
+
+- `.github/workflows/release.yml` 使用仓库 Secret `GH_PAT` 创建 Release；**PAT 所有者就是 Release 作者**。
+- PAT 需要能读写本仓库（经典 PAT 勾 `repo` 即可，建议 90 天过期）；只放在仓库 `Settings → Secrets and variables → Actions`，名称 `GH_PAT`，不要写进代码。
+- 当前账号需要仓库 Secrets 管理权限；没有权限时由仓库管理员添加，或改用 PAT 手动创建 Release。
+- PAT 过期/撤销后，自动发布失败；及时更新 Secret。
+
 ## 交付流程
 
 1. 修改 `app/build.gradle.kts` 的 `versionCode` / `versionName`。
-2. 在 `CHANGELOG.md` 增加对应版本段落。
+2. 在 `CHANGELOG.md` 和 `RELEASE_NOTES.md` 增加对应版本内容。
 3. 编译并跑单元测试：
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1 :app:assembleDebug
@@ -55,12 +62,12 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
    ```
-   生成 `dist/chaoxing-board-v2.0.0.apk` 和 SHA-256。
-5. 打 Git tag：`v2.0.0`；GitHub Release 标题和说明复用 CHANGELOG，上传 `dist/` 里的 APK。
+   生成 `dist/chaoxing-board-v2.1.0.apk` 和 SHA-256。
+5. 打 Git tag：`v2.1.0`；GitHub Release 由 workflow 自动创建，标题和说明复用 `RELEASE_NOTES.md`。
 6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装。
 
 ## 当前版本
 
-- **2.0.0**（versionCode 20000）：启用新的正式签名 key；功能同 1.1.0（退出登录/切换账号、作业详情页、待批阅修改入口）。
-- 1.1.0（10100）是切换签名前的 debug 预发布版，只用于测试。
-- 下一版 **2.1.0** 计划：检查更新 + 下载 + 覆盖安装 + 更新后重启（使用同一把 release key）。
+- **2.1.0**（versionCode 20100）：应用内检查更新、下载校验、PackageInstaller 覆盖安装、更新后重启、跳过版本；沿用 2.0.0 的正式签名。
+- 2.0.0（20000）是签名迁移版本；1.1.0（10100）是切换签名前的 debug 预发布版。
+- 下一版：2.1.1（PATCH，修 Bug）或 2.2.0（MINOR，新功能）。

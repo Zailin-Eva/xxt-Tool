@@ -34,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnRestore: TextView
     private lateinit var btnLogout: TextView
     private lateinit var btnRelogin: TextView
+    private lateinit var btnUpdate: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +48,7 @@ class SettingsActivity : AppCompatActivity() {
         btnRestore = findViewById(R.id.btnRestore)
         btnLogout = findViewById(R.id.btnLogout)
         btnRelogin = findViewById(R.id.btnRelogin)
+        btnUpdate = findViewById(R.id.btnUpdate)
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.tvVersion).text = "作业看板 v" + versionName() + " · 仅本机使用"
@@ -58,6 +60,7 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.btnClear).setOnClickListener { confirmClear() }
         btnRestore.setOnClickListener { confirmRestore() }
         btnLogout.setOnClickListener { confirmLogout() }
+        btnUpdate.setOnClickListener { UpdateManager.manualCheck(this) }
         btnX.setOnClickListener { editDays("待批阅时间窗口（天）", prefs.xDays) { prefs.xDays = it } }
         btnY.setOnClickListener { editDays("已完成保留时间（天）", prefs.yDays) { prefs.yDays = it } }
 
@@ -94,6 +97,7 @@ class SettingsActivity : AppCompatActivity() {
         btnY.text = "${prefs.yDays} 天"
         btnRelogin.text = if (prefs.isLoggedIn) "重新登录" else "登录学习通"
         btnLogout.visibility = if (prefs.isLoggedIn) View.VISIBLE else View.GONE
+        btnUpdate.text = "检查更新（当前 v" + versionName() + "）"
         val n = prefs.deletedKeys().size
         btnRestore.text = if (n > 0) "恢复被清理的条目（$n）" else "恢复被清理的条目"
     }

@@ -204,6 +204,20 @@
                 android:padding="12dp">
 
                 <TextView
+                    android:id="@+id/btnUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:gravity="center_vertical"
+                    android:text="检查更新"
+                    android:textColor="#111111"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#EEEEEE" />
+
+                <TextView
                     android:id="@+id/btnLog"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"

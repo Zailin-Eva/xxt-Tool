@@ -16,7 +16,9 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ github.token }}
+          # 使用仓库 Secret GH_PAT（经典的 repo scope PAT），Release 作者会显示为 PAT 所有者。
+          # 不再使用 github.token，否则作者固定是 github-actions[bot]。
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "dist/chaoxing-board-${GITHUB_REF_NAME}.apk" \
