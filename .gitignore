@@ -23,3 +23,6 @@ reference/
 cookie*.txt
 
 toolchain/
+
+# 允许提交发布用的安装包
+!dist/*.apk
