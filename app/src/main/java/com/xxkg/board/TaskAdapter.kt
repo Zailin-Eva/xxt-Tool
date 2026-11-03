@@ -51,10 +51,11 @@ class TaskAdapter(
                 val r = TimeFmt.remain(now, t.endTime, greenDays, orangeDays)
                 holder.right.text = r.text
                 holder.right.setTextColor(r.color)
+                val tag = t.provider.label
                 holder.sub.text = if (t.endTime > 0) {
-                    "$course · 截止 " + TimeFmt.dateTime(t.endTime)
+                    "$tag · $course · 截止 " + TimeFmt.dateTime(t.endTime)
                 } else {
-                    "$course · 截止时间未知"
+                    "$tag · $course · 截止时间未知"
                 }
             }
 
@@ -63,10 +64,10 @@ class TaskAdapter(
                 holder.right.setTextColor(TimeFmt.C_SOON)
                 val days = TimeFmt.daysAgo(now, t.stageTime)
                 holder.sub.text = when {
-                    t.statusText.startsWith("已提交") -> "$course · 已提交（时间未知）"
-                    days > 0 -> "$course · 已交 $days 天"
-                    days == 0 -> "$course · 今天交的"
-                    else -> course
+                    t.statusText.startsWith("已提交") -> "${t.provider.label} · $course · 已提交（时间未知）"
+                    days > 0 -> "${t.provider.label} · $course · 已交 $days 天"
+                    days == 0 -> "${t.provider.label} · $course · 今天交的"
+                    else -> "${t.provider.label} · $course"
                 }
             }
 
@@ -76,13 +77,17 @@ class TaskAdapter(
                     holder.right.text = "超期未批"
                     holder.right.setTextColor(TimeFmt.C_SOON)
                     val days = TimeFmt.daysAgo(now, t.stageTime)
-                    holder.sub.text = if (days >= 0) "$course · 已交 $days 天" else course
+                    holder.sub.text = if (days >= 0) {
+                        "${t.provider.label} · $course · 已交 $days 天"
+                    } else {
+                        "${t.provider.label} · $course"
+                    }
                 } else {
                     val g = t.grade
                     holder.right.text = if (g.isNotEmpty()) "$g 分" else "已完成"
                     holder.right.setTextColor(TimeFmt.C_TEXT)
                     val d = TimeFmt.dateTime(if (t.stageTime > 0) t.stageTime else t.publishTime)
-                    holder.sub.text = "$course · $d"
+                    holder.sub.text = "${t.provider.label} · $course · $d"
                 }
             }
 
@@ -91,11 +96,12 @@ class TaskAdapter(
                     val r = TimeFmt.remain(now, t.endTime, greenDays, orangeDays)
                     holder.right.text = r.text
                     holder.right.setTextColor(r.color)
-                    holder.sub.text = "$course · 截止 " + TimeFmt.dateTime(t.endTime)
+                    holder.sub.text = "${t.provider.label} · $course · 截止 " + TimeFmt.dateTime(t.endTime)
                 } else {
                     holder.right.text = "已过期"
                     holder.right.setTextColor(TimeFmt.C_EXPIRED)
-                    holder.sub.text = "$course · " + if (t.type == TaskType.EXAM) "已过期未考" else "已过期未交"
+                    holder.sub.text = "${t.provider.label} · $course · " +
+                        if (t.type == TaskType.EXAM) "已过期未考" else "已过期未交"
                 }
             }
         }

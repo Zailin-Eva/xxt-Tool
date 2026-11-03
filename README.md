@@ -10,7 +10,7 @@
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
 - 安装包命名统一为 `xxtT-v版本号.apk`；GitHub Release 标题统一为 `v版本号`
 
-当前版本：**2.3.0**（versionCode 20300），版本规则见 [VERSIONING.md](VERSIONING.md)。
+当前版本：**2.4.0**（versionCode 20400），版本规则见 [VERSIONING.md](VERSIONING.md)。
 
 ## 功能
 
@@ -33,7 +33,8 @@
 - 下载完成后校验包名、versionCode 和签名，再交给系统安装器覆盖安装（安装完成后手动打开 App）
 - 下拉刷新；打开 App 自动刷新
 - 「个人 → 抓取日志」可查看每一步请求结果，一键复制，方便排查接口变动
-- 支持学习通 / 雨课堂双数据源，分别在「个人 → 退出登录」后重新选择；雨课堂服务器默认 `changjiang.yuketang.cn`，可在登录页改
+- 支持学习通 / 雨课堂双账号同时登录，任务合并到同一套四栏，条目和顶部卡片都标注「学习通 / 雨课堂」；「个人」页可分别登录、分别退出，底部「退出登录」同时退出两个账号
+- 雨课堂登录默认 `https://www.yuketang.cn/web`，服务器跟随网页里用户的选择，不再单独设「更换服务器」
 
 ## 版本规则
 
@@ -43,7 +44,7 @@
 - **MINOR**：新增用户可见功能，清零 PATCH；
 - **PATCH**：只修 Bug/文案/样式。
 
-`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.3.0 = 20300。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.4.0 = 20400。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -71,7 +72,7 @@
 
 雨课堂没有公开 API，本项目走它的网页接口：
 
-- 登录：内嵌 `https://{服务器}/v2/web/login`，微信扫码；默认 `changjiang.yuketang.cn`，可改。
+- 登录：内嵌 `https://www.yuketang.cn/web`，微信扫码；页面里可切换服务器，登录后读取当前 URL 域名保存。
 - 课程：`/v2/api/web/courses/list?identity=2`
 - 活动：`/v2/api/web/logs/learn/{classroom_id}?actype=-1&page=0&offset=100&sort=-1`
   - `type=5` 习题/考试（`status` 0未做 1进行中 2待批阅 3已完成，带分数）
@@ -85,20 +86,21 @@
 - `type=19` 作业只有 `is_assessed` 可推断是否已批，无法拿到具体分数。
 - 课件/视频/签到当前不展示，只保留作业和考试。
 - 雨课堂活动页的真实路由 ID 与日志不一致，点任务先打开课程页。
+- 两个数据源各自独立缓存、独立退出；合并后按同一套时间窗口和排序显示。
 
 ## 安装
 
 两种方式：
 
-1. 直接下载仓库里的安装包：**[`dist/xxtT-v2.3.0.apk`](dist/xxtT-v2.3.0.apk)**（2.3.0 正式签名）
+1. 直接下载仓库里的安装包：**[`dist/xxtT-v2.4.0.apk`](dist/xxtT-v2.4.0.apk)**（2.4.0 正式签名）
 2. 到 [Releases](../../releases) 页面下载
 
-> **2.0.0 起使用新的正式签名 key，2.1.x / 2.2.x / 2.3.x 沿用同一把 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次；之后 2.0.x / 2.1.x / 2.2.x / 2.3.x 都可以直接覆盖安装且保留数据。卸载会清掉登录，重新登录即可。
-> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.3.0.apk`）。开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.3.0-debug`）。正式发布包用 `scripts/release.ps1` 生成。
+> **2.0.0 起使用新的正式签名 key，2.1.x / 2.2.x / 2.3.x / 2.4.x 沿用同一把 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次；之后 2.0.x / 2.1.x / 2.2.x / 2.3.x / 2.4.x 都可以直接覆盖安装且保留数据。卸载会清掉登录，重新登录即可。
+> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.4.0.apk`）。开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.4.0-debug`）。正式发布包用 `scripts/release.ps1` 生成。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
-首次打开先选择「学习通登录」或「雨课堂登录」：学习通用手机号/学号 + 密码登录；雨课堂默认长江雨课堂，用微信扫码登录（可在登录页「切换」里改服务器）。登录成功后自动抓取。
+首次打开先选择「学习通登录」或「雨课堂登录」：学习通用手机号/学号 + 密码登录；雨课堂默认打开 `https://www.yuketang.cn/web`，用微信扫码登录，页面里可以自己切换服务器，登录成功后自动按实际服务器抓取。两个账号可以同时登录，也可以只登一个。
 
 ## 自己编译
 

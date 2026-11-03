@@ -40,6 +40,7 @@ import java.util.Locale
 class WebActivity : AppCompatActivity() {
 
     private lateinit var prefs: Prefs
+    private var provider: Provider = Provider.CHAOXING
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
     private lateinit var tvTitle: TextView
@@ -57,6 +58,9 @@ class WebActivity : AppCompatActivity() {
         val url = intent.getStringExtra(EXTRA_URL).orEmpty()
         val referer = intent.getStringExtra(EXTRA_REFERER).orEmpty()
         val title = intent.getStringExtra(EXTRA_TITLE).orEmpty()
+        provider = intent.getStringExtra(EXTRA_PROVIDER)
+            ?.let { runCatching { Provider.valueOf(it) }.getOrNull() }
+            ?: prefs.provider
 
         tvTitle = findViewById(R.id.tvTitle)
         progress = findViewById(R.id.progress)
@@ -386,7 +390,7 @@ class WebActivity : AppCompatActivity() {
     }
 
     private fun injectCookies() {
-        val yt = prefs.provider == Provider.YUKETANG
+        val yt = provider == Provider.YUKETANG
         val header = if (yt) prefs.ytCookie else prefs.cookie
         if (header.isEmpty()) {
             DebugLog.log("WebView: 本地没有登录 Cookie")
@@ -539,6 +543,7 @@ class WebActivity : AppCompatActivity() {
         const val EXTRA_URL = "url"
         const val EXTRA_REFERER = "referer"
         const val EXTRA_TITLE = "title"
+        const val EXTRA_PROVIDER = "provider"
         private const val REQ_FILE = 4001
 
         /**

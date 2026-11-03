@@ -20,7 +20,10 @@ import androidx.appcompat.app.AppCompatActivity
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var prefs: Prefs
-    private lateinit var tvAccount: TextView
+    private lateinit var tvCxStatus: TextView
+    private lateinit var tvYtStatus: TextView
+    private lateinit var btnCx: TextView
+    private lateinit var btnYt: TextView
     private lateinit var tvSync: TextView
     private lateinit var btnX: TextView
     private lateinit var btnY: TextView
@@ -35,7 +38,10 @@ class SettingsActivity : AppCompatActivity() {
         prefs = Prefs.get(this)
         setContentView(R.layout.activity_settings)
 
-        tvAccount = findViewById(R.id.tvAccount)
+        tvCxStatus = findViewById(R.id.tvCxStatus)
+        tvYtStatus = findViewById(R.id.tvYtStatus)
+        btnCx = findViewById(R.id.btnCx)
+        btnYt = findViewById(R.id.btnYt)
         tvSync = findViewById(R.id.tvSync)
         btnX = findViewById(R.id.btnX)
         btnY = findViewById(R.id.btnY)
@@ -49,7 +55,13 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvVersion).text = "xxtT v" + versionName() + " · 仅本机使用"
         findViewById<TextView>(R.id.btnLog).setOnClickListener { showLog() }
         btnRestore.setOnClickListener { confirmRestore() }
-        btnLogout.setOnClickListener { confirmLogout() }
+        btnLogout.setOnClickListener { confirmLogoutAll() }
+        btnCx.setOnClickListener {
+            if (prefs.isCxLoggedIn) confirmLogout(Provider.CHAOXING) else login(Provider.CHAOXING)
+        }
+        btnYt.setOnClickListener {
+            if (prefs.isYtLoggedIn) confirmLogout(Provider.YUKETANG) else login(Provider.YUKETANG)
+        }
         btnUpdate.setOnClickListener { UpdateManager.manualCheck(this) }
         btnX.setOnClickListener { editDays("待批阅时间窗口（天）", prefs.xDays) { prefs.xDays = it } }
         btnY.setOnClickListener { editDays("已完成保留时间（天）", prefs.yDays) { prefs.yDays = it } }
@@ -64,17 +76,32 @@ class SettingsActivity : AppCompatActivity() {
         bindState()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_LOGIN) bindState()
+    }
+
+    private fun login(provider: Provider) {
+        val i = Intent(this, LoginActivity::class.java)
+        i.putExtra(LoginActivity.EXTRA_PROVIDER, provider.name)
+        startActivityForResult(i, REQ_LOGIN)
+    }
+
     private fun bindState() {
-        tvAccount.text = if (prefs.isLoggedIn) {
-            if (prefs.provider == Provider.YUKETANG) {
-                "雨课堂" + (if (prefs.ytName.isNotEmpty()) " · ${prefs.ytName}" else "") +
-                    " · ${prefs.ytHost}"
-            } else {
-                "学习通 · UID ${prefs.uid}"
-            }
+        tvCxStatus.text = if (prefs.isCxLoggedIn) {
+            "已登录 · UID ${prefs.uid}"
         } else {
             "未登录"
         }
+        btnCx.text = if (prefs.isCxLoggedIn) "退出" else "登录"
+
+        tvYtStatus.text = if (prefs.isYtLoggedIn) {
+            "已登录" + (if (prefs.ytName.isNotEmpty()) " · ${prefs.ytName}" else "") +
+                " · ${prefs.ytHost}"
+        } else {
+            "未登录"
+        }
+        btnYt.text = if (prefs.isYtLoggedIn) "退出" else "登录"
         tvSync.text = if (prefs.lastSync > 0) {
             "上次更新：" + TimeFmt.dateTime(prefs.lastSync)
         } else {
@@ -84,7 +111,7 @@ class SettingsActivity : AppCompatActivity() {
         btnY.text = "${prefs.yDays} 天"
         btnGreen.text = "${prefs.greenDays} 天"
         btnOrange.text = "${prefs.orangeDays} 天"
-        btnLogout.visibility = if (prefs.isLoggedIn) View.VISIBLE else View.GONE
+        btnLogout.visibility = if (prefs.anyLoggedIn) View.VISIBLE else View.GONE
         btnUpdate.text = "检查更新（当前 v" + versionName() + "）"
         val n = prefs.deletedKeys().size
         btnRestore.text = if (n > 0) "恢复被清理的条目（$n）" else "恢复被清理的条目"
@@ -150,13 +177,32 @@ class SettingsActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun confirmLogout() {
+    private fun confirmLogout(provider: Provider) {
         AlertDialog.Builder(this)
-            .setTitle("退出登录")
-            .setMessage("会清除本机保存的登录态、课程和作业缓存，需要重新登录学习通。确定吗？")
+            .setTitle("退出" + provider.label)
+            .setMessage("只清除${provider.label}的登录态和缓存，另一个账号不受影响。确定吗？")
             .setNegativeButton("取消", null)
             .setPositiveButton("退出") { _, _ ->
-                prefs.clearAccount()
+                if (provider == Provider.YUKETANG) {
+                    Cookies.clearFor(prefs.ytHost, prefs.ytCookie)
+                    prefs.clearYtAccount()
+                } else {
+                    val header = prefs.cookie
+                    for (h in Cookies.HOSTS) Cookies.clearFor(h, header)
+                    prefs.clearCxAccount()
+                }
+                bindState()
+            }
+            .show()
+    }
+
+    private fun confirmLogoutAll() {
+        AlertDialog.Builder(this)
+            .setTitle("退出全部账号")
+            .setMessage("会同时退出学习通和雨课堂，并清除本机登录态与缓存。确定吗？")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("退出") { _, _ ->
+                prefs.clearAllAccounts()
                 DebugLog.clear()
                 CookieManager.getInstance().removeAllCookies(null)
                 CookieManager.getInstance().flush()
@@ -193,4 +239,8 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+
+    companion object {
+        private const val REQ_LOGIN = 2001
+    }
 }

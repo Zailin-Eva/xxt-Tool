@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var prefs: Prefs
-    private lateinit var api: TaskSource
     private lateinit var adapter: TaskAdapter
 
     private lateinit var tvNearestTitle: TextView
@@ -47,7 +46,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = Prefs.get(this)
-        api = if (prefs.provider == Provider.YUKETANG) YtApi(prefs) else XtApi(prefs)
         setContentView(R.layout.activity_main)
 
         tvNearestTitle = findViewById(R.id.tvNearestTitle)
@@ -113,10 +111,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        all = Task.decode(prefs.activeCache)
+        all = loadCached()
         render()
 
-        if (!prefs.isLoggedIn) {
+        if (!prefs.anyLoggedIn) {
             if (all.isEmpty() && !prefs.loggedOut) {
                 startActivityForResult(Intent(this, LoginActivity::class.java), REQ_LOGIN)
             } else if (all.isNotEmpty()) {
@@ -130,13 +128,13 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // 从学习通页面/退出登录回来时，本地缓存可能已变化，重新读一遍再渲染
-        all = Task.decode(prefs.activeCache)
+        all = loadCached()
         render()
-        // 从别处登录成功回来（缓存为空且从未同步过）时自动抓一次
-        if (prefs.isLoggedIn && all.isEmpty() && prefs.lastSync == 0L && !refreshing) {
+        // 从设置页登录了新账号（lastSync 被清零）或从未同步过时自动抓一次
+        if (prefs.anyLoggedIn && prefs.lastSync == 0L && !refreshing) {
             refresh()
         }
-        if (prefs.isLoggedIn) {
+        if (prefs.anyLoggedIn) {
             UpdateManager.maybeAutoCheck(this)
         }
     }
@@ -150,9 +148,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_LOGIN && resultCode == Activity.RESULT_OK) {
             prefs.loggedOut = false
-            // 登录时可能切换了数据源，重新绑定
-            api = if (prefs.provider == Provider.YUKETANG) YtApi(prefs) else XtApi(prefs)
-            all = Task.decode(prefs.activeCache)
+            all = loadCached()
             render()
             refresh()
         } else if (requestCode == REQ_TASK) {
@@ -184,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         }
         if (first == null) {
             tvNearestTitle.text = "暂无未完成作业"
-            tvNearestMeta.text = if (prefs.isLoggedIn) "下拉可刷新" else "请先登录学习通"
+            tvNearestMeta.text = if (prefs.anyLoggedIn) "下拉可刷新" else "请先登录"
             tvCountdown.text = "--"
             tvCountdown.setTextColor(TimeFmt.C_TEXT)
         } else {
@@ -200,6 +196,8 @@ class MainActivity : AppCompatActivity() {
             val week = buckets.todo.count { it.endTime > now && it.endTime - now <= 7 * TimeFmt.DAY }
             val course = first.courseName.ifEmpty { "" }
             tvNearestMeta.text = buildString {
+                append(first.provider.label)
+                append(" · ")
                 if (course.isNotEmpty()) {
                     append(course)
                     append(" · ")
@@ -227,13 +225,13 @@ class MainActivity : AppCompatActivity() {
 
         if (data.isEmpty()) {
             emptyBox.visibility = android.view.View.VISIBLE
-            btnLogin.visibility = if (!prefs.isLoggedIn) {
+            btnLogin.visibility = if (!prefs.anyLoggedIn) {
                 android.view.View.VISIBLE
             } else {
                 android.view.View.GONE
             }
             tvEmpty.text = when {
-                !prefs.isLoggedIn -> "登录后查看课程、作业和考试"
+                !prefs.anyLoggedIn -> "请先登录"
                 tab == 0 -> "没有未完成的作业 / 考试"
                 tab == 1 -> "近 ${prefs.xDays} 天没有待批阅的作业"
                 tab == 2 -> "近 ${prefs.yDays} 天没有已完成的作业"
@@ -247,23 +245,54 @@ class MainActivity : AppCompatActivity() {
 
     // ------------------------------------------------------------ 刷新
 
+    private fun loadCached(): List<Task> =
+        Task.decode(prefs.cache) + Task.decode(prefs.ytCache).onEach {
+            it.provider = Provider.YUKETANG
+        }
+
     private fun refresh() {
         if (refreshing) return
-        if (!prefs.isLoggedIn) {
+        val cxOn = prefs.isCxLoggedIn
+        val ytOn = prefs.isYtLoggedIn
+        if (!cxOn && !ytOn) {
             swipe.isRefreshing = false
-            toast("请先登录学习通")
+            toast("请先登录")
             return
         }
         refreshing = true
         swipe.isRefreshing = true
         scope.launch {
             try {
-                val snap = api.fetchAll()
-                all = snap.tasks
-                prefs.activeCache = Task.encode(all)
+                val merged = ArrayList<Task>()
+                var firstError = ""
+                if (cxOn) {
+                    try {
+                        val snap = withContext(Dispatchers.IO) { XtApi(prefs).fetchAll() }
+                        prefs.cache = Task.encode(snap.tasks)
+                        merged.addAll(snap.tasks)
+                        if (snap.tasks.isEmpty() && snap.errors.isNotEmpty()) {
+                            firstError = snap.errors.first()
+                        }
+                    } catch (e: Exception) {
+                        firstError = e.message ?: "学习通刷新失败"
+                    }
+                }
+                if (ytOn) {
+                    try {
+                        val snap = withContext(Dispatchers.IO) { YtApi(prefs).fetchAll() }
+                        prefs.ytCache = Task.encode(snap.tasks)
+                        merged.addAll(snap.tasks)
+                        if (snap.tasks.isEmpty() && snap.errors.isNotEmpty() && firstError.isEmpty()) {
+                            firstError = snap.errors.first()
+                        }
+                    } catch (e: Exception) {
+                        if (firstError.isEmpty()) firstError = e.message ?: "雨课堂刷新失败"
+                    }
+                }
+                all = merged
                 prefs.lastSync = System.currentTimeMillis()
-                if (snap.tasks.isEmpty() && snap.errors.isNotEmpty()) {
-                    toast("抓取失败：" + snap.errors.first())
+                if (merged.isEmpty() && firstError.isNotEmpty()) {
+                    toast("抓取失败：$firstError")
                 }
                 render()
             } catch (e: Exception) {
@@ -286,13 +315,14 @@ class MainActivity : AppCompatActivity() {
         lastOpenedTaskKey = t.key
         val i = Intent(this, WebActivity::class.java)
         i.putExtra(WebActivity.EXTRA_URL, t.url)
-        i.putExtra(WebActivity.EXTRA_REFERER, refererFor(prefs, t))
+        i.putExtra(WebActivity.EXTRA_REFERER, refererFor(t))
         i.putExtra(WebActivity.EXTRA_TITLE, t.title)
+        i.putExtra(WebActivity.EXTRA_PROVIDER, t.provider.name)
         startActivityForResult(i, REQ_TASK)
     }
 
-    private fun refererFor(prefs: Prefs, t: Task): String =
-        if (prefs.provider == Provider.YUKETANG) {
+    private fun refererFor(t: Task): String =
+        if (t.provider == Provider.YUKETANG) {
             "https://${prefs.ytHost}/"
         } else {
             XtApi.WEB + "/"
@@ -300,16 +330,28 @@ class MainActivity : AppCompatActivity() {
 
     /** 从作业页回来：只重拉这条所在课程的列表，更新它的状态/分数，避免整页重刷。 */
     private fun refreshTaskStatus(key: String) {
-        if (key.isEmpty() || !prefs.isLoggedIn) return
+        if (key.isEmpty()) return
         val task = all.firstOrNull { it.key == key } ?: return
+        if (task.provider == Provider.YUKETANG && !prefs.isYtLoggedIn) return
+        if (task.provider == Provider.CHAOXING && !prefs.isCxLoggedIn) return
         scope.launch {
             try {
-                val updated = withContext(Dispatchers.IO) { api.refreshTaskStatus(task) }
+                val updated = withContext(Dispatchers.IO) {
+                    if (task.provider == Provider.YUKETANG) {
+                        YtApi(prefs).refreshTaskStatus(task)
+                    } else {
+                        XtApi(prefs).refreshTaskStatus(task)
+                    }
+                }
                 val list = all.toMutableList()
                 val index = list.indexOfFirst { it.key == updated.key }
                 if (index >= 0) list[index] = updated
                 all = list
-                prefs.activeCache = Task.encode(all)
+                if (updated.provider == Provider.YUKETANG) {
+                    prefs.ytCache = Task.encode(all.filter { it.provider == Provider.YUKETANG })
+                } else {
+                    prefs.cache = Task.encode(all.filter { it.provider == Provider.CHAOXING })
+                }
                 render()
             } catch (e: Exception) {
                 // 状态刷新失败不打扰用户，下次下拉刷新会补上

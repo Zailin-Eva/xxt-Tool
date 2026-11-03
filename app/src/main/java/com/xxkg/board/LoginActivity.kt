@@ -14,7 +14,6 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -33,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvHint: TextView
     private var done = false
     private var defaultUa = ""
+    private var target: Provider = Provider.CHAOXING
     private val handler = Handler(Looper.getMainLooper())
 
     private val poller = object : Runnable {
@@ -83,16 +83,17 @@ class LoginActivity : AppCompatActivity() {
                 view: WebView?,
                 request: WebResourceRequest?
             ): WebResourceResponse? {
-                if (prefs.provider != Provider.YUKETANG) return null
+                if (target != Provider.YUKETANG) return null
                 val url = request?.url?.toString() ?: return null
                 if (!request.isForMainFrame) return null
-                if (!url.startsWith("https://${prefs.ytHost}/v2/web/")) return null
+                val host = request.url?.host.orEmpty()
+                if (!host.endsWith("yuketang.cn")) return null
                 return patchedHtml(url)
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 progress.visibility = View.GONE
-                if (prefs.provider == Provider.YUKETANG) {
+                if (target == Provider.YUKETANG) {
                     // 雨课堂登录页是固定宽度的桌面布局，默认只显示左半边；滚到右侧的二维码卡片
                     view?.post { view.scrollTo((view.width * 0.6).toInt(), 0) }
                 }
@@ -100,10 +101,12 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        val requested = intent.getStringExtra(EXTRA_PROVIDER)
+            ?.let { runCatching { Provider.valueOf(it) }.getOrNull() }
         if (savedInstanceState == null) {
-            showChooser()
+            if (requested != null) startLogin(requested) else showChooser()
         } else {
-            startLogin(prefs.provider)
+            startLogin(requested ?: prefs.provider)
         }
     }
 
@@ -132,18 +135,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showChooser() {
-        val items = arrayOf(
-            "学习通登录",
-            "雨课堂登录（${prefs.ytHost}）",
-            "雨课堂：更换服务器",
-        )
+        val items = arrayOf("学习通登录", "雨课堂登录")
         AlertDialog.Builder(this)
             .setTitle("选择登录方式")
             .setItems(items) { _, which ->
                 when (which) {
                     0 -> startLogin(Provider.CHAOXING)
                     1 -> startLogin(Provider.YUKETANG)
-                    2 -> editYtHost()
                 }
             }
             .setNegativeButton("取消") { _, _ ->
@@ -152,29 +150,8 @@ class LoginActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun editYtHost() {
-        val input = EditText(this).apply {
-            setText(prefs.ytHost)
-            setSingleLine(true)
-            setPadding(40, 24, 40, 24)
-        }
-        AlertDialog.Builder(this)
-            .setTitle("雨课堂服务器")
-            .setMessage("填域名，例如 changjiang.yuketang.cn 或 www.yuketang.cn")
-            .setView(input)
-            .setNegativeButton("取消", null)
-            .setPositiveButton("保存") { _, _ ->
-                val v = input.text.toString().trim()
-                if (v.isNotEmpty()) {
-                    prefs.ytHost = v
-                    Toast.makeText(this, "已改为 ${prefs.ytHost}", Toast.LENGTH_SHORT).show()
-                    startLogin(Provider.YUKETANG)
-                }
-            }
-            .show()
-    }
-
     private fun startLogin(provider: Provider) {
+        target = provider
         prefs.provider = provider
         done = false
         tvTitle.text = "登录" + provider.label
@@ -195,7 +172,8 @@ class LoginActivity : AppCompatActivity() {
             webView.settings.userAgentString = defaultUa
         }
         when (provider) {
-            Provider.YUKETANG -> webView.loadUrl(YtApi.loginUrl(prefs.ytHost))
+            // 默认普通雨课堂入口；页面里可以自己切到长江等服务器，登录后按实际域名保存
+            Provider.YUKETANG -> webView.loadUrl(YtApi.loginUrl(YtApi.DEFAULT_HOST))
             Provider.CHAOXING -> webView.loadUrl(XtApi.LOGIN_URL)
         }
         handler.removeCallbacks(poller)
@@ -204,10 +182,13 @@ class LoginActivity : AppCompatActivity() {
 
     private fun checkLogin() {
         if (done) return
-        when (prefs.provider) {
+        when (target) {
             Provider.YUKETANG -> {
-                val map = Cookies.harvestFor(prefs.ytHost)
-                if (Cookies.looksYtLoggedIn(map)) finishYtLogin(map)
+                val host = webView.url?.let { runCatching { java.net.URI(it).host }.getOrNull() }
+                    .orEmpty().ifEmpty { prefs.ytHost }
+                if (!host.endsWith("yuketang.cn")) return
+                val map = Cookies.harvestFor(host)
+                if (Cookies.looksYtLoggedIn(map)) finishYtLogin(map, host)
             }
 
             Provider.CHAOXING -> {
@@ -223,6 +204,8 @@ class LoginActivity : AppCompatActivity() {
         prefs.cookie = Cookies.header(map)
         prefs.uid = map["_uid"].orEmpty()
         prefs.puid = map["sso_puid"] ?: map["_tid"] ?: ""
+        prefs.cache = ""
+        prefs.lastSync = 0L
         prefs.loggedOut = false
         CookieManager.getInstance().flush()
         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show()
@@ -230,12 +213,15 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun finishYtLogin(map: Map<String, String>) {
+    private fun finishYtLogin(map: Map<String, String>, host: String) {
         done = true
         handler.removeCallbacks(poller)
+        prefs.ytHost = host
         prefs.ytCookie = Cookies.header(map)
         // 先用会话串占位，保证 isLoggedIn 立刻为 true；用户信息异步补齐
         prefs.ytUid = map["sessionid"]?.take(8).orEmpty().ifEmpty { "yuketang" }
+        prefs.ytCache = ""
+        prefs.lastSync = 0L
         prefs.loggedOut = false
         CookieManager.getInstance().flush()
 
@@ -255,6 +241,10 @@ class LoginActivity : AppCompatActivity() {
                 finish()
             }
         }.start()
+    }
+
+    companion object {
+        const val EXTRA_PROVIDER = "provider"
     }
 
     override fun onBackPressed() {

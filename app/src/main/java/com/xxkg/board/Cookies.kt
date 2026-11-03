@@ -5,7 +5,7 @@ import android.webkit.CookieManager
 /** 从 WebView 的 CookieManager 里收集 chaoxing 全站 Cookie。 */
 object Cookies {
 
-    private val HOSTS = listOf(
+    val HOSTS = listOf(
         "https://chaoxing.com",
         "https://i.chaoxing.com",
         "https://mooc1.chaoxing.com",
@@ -59,6 +59,25 @@ object Cookies {
             }
         }
         return map
+    }
+
+    /** 让指定域名下的这些 Cookie 过期，用于单独退出某个账号。 */
+    fun clearFor(host: String, header: String) {
+        if (header.isEmpty()) return
+        val url = if (host.startsWith("http")) host else "https://$host"
+        val cm = CookieManager.getInstance()
+        for (part in header.split(";")) {
+            val idx = part.indexOf('=')
+            if (idx <= 0) continue
+            val key = part.substring(0, idx).trim()
+            if (key.isEmpty()) continue
+            try {
+                cm.setCookie(url, "$key=; Max-Age=0; path=/")
+            } catch (e: Exception) {
+                // 忽略单个非法 Cookie
+            }
+        }
+        cm.flush()
     }
 
     /** 雨课堂登录成功的标志（Django 风格的 session）。 */

@@ -33,6 +33,8 @@ class Task(
     var grade: String = "",
     var url: String = "",
     var statusText: String = "",
+    /** 数据源：学习通 / 雨课堂，用于合并展示和标记 */
+    var provider: Provider = Provider.CHAOXING,
 ) {
     fun toJson(): JSONObject {
         val o = JSONObject()
@@ -50,6 +52,7 @@ class Task(
         o.put("g", grade)
         o.put("u", url)
         o.put("sx", statusText)
+        o.put("p", provider.name)
         return o
     }
 
@@ -69,6 +72,8 @@ class Task(
             grade = o.optString("g"),
             url = o.optString("u"),
             statusText = o.optString("sx"),
+            provider = runCatching { Provider.valueOf(o.optString("p")) }
+                .getOrDefault(Provider.CHAOXING),
         )
 
         fun encode(list: List<Task>): String {

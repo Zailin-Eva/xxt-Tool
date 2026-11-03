@@ -30,7 +30,7 @@ class Prefs(ctx: Context) {
             .getOrDefault(Provider.CHAOXING)
         set(v) = putS(K_PROVIDER, v.name)
 
-    /** 雨课堂服务器（默认长江雨课堂），只填域名。 */
+    /** 雨课堂服务器（默认 www.yuketang.cn，登录后按网页实际服务器更新），只填域名。 */
     var ytHost: String
         get() = s(K_YT_HOST, YtApi.DEFAULT_HOST)
         set(v) = putS(K_YT_HOST, v.trim().removePrefix("https://").removePrefix("http://").trimEnd('/'))
@@ -117,37 +117,62 @@ class Prefs(ctx: Context) {
         get() = s(K_CACHE)
         set(v) = putS(K_CACHE, v)
 
+    val isCxLoggedIn: Boolean
+        get() = cookie.isNotEmpty() && uid.isNotEmpty()
+
+    val isYtLoggedIn: Boolean
+        get() = ytCookie.isNotEmpty() && ytUid.isNotEmpty()
+
+    val anyLoggedIn: Boolean
+        get() = isCxLoggedIn || isYtLoggedIn
+
     val isLoggedIn: Boolean
-        get() = if (provider == Provider.YUKETANG) {
-            ytCookie.isNotEmpty() && ytUid.isNotEmpty()
-        } else {
-            cookie.isNotEmpty() && uid.isNotEmpty()
-        }
+        get() = anyLoggedIn
 
     /** 是否主动退出过登录（区别于 Cookie 过期） */
     var loggedOut: Boolean
         get() = sp.getBoolean(K_LOGGED_OUT, false)
         set(v) = sp.edit().putBoolean(K_LOGGED_OUT, v).apply()
 
-    /** 退出登录：清当前数据源的账号、课程、作业缓存；保留时间窗口/排序等本机设置 */
-    fun clearAccount() {
-        val edit = sp.edit()
+    /** 退出学习通：只清学习通账号和缓存。 */
+    fun clearCxAccount() {
+        sp.edit()
+            .remove(K_COOKIE)
+            .remove(K_UID)
+            .remove(K_PUID)
+            .remove(K_NAME)
+            .remove(K_CACHE)
+            .apply()
+        if (!anyLoggedIn) loggedOut = true
+    }
+
+    /** 退出雨课堂：只清雨课堂账号和缓存。 */
+    fun clearYtAccount() {
+        sp.edit()
+            .remove(K_YT_COOKIE)
+            .remove(K_YT_UID)
+            .remove(K_YT_NAME)
+            .remove(K_YT_CACHE)
+            .apply()
+        if (!anyLoggedIn) loggedOut = true
+    }
+
+    /** 两个账号一起退出。 */
+    fun clearAllAccounts() {
+        sp.edit()
+            .remove(K_COOKIE)
+            .remove(K_UID)
+            .remove(K_PUID)
+            .remove(K_NAME)
+            .remove(K_CACHE)
+            .remove(K_YT_COOKIE)
+            .remove(K_YT_UID)
+            .remove(K_YT_NAME)
+            .remove(K_YT_CACHE)
             .remove(K_STATE)
             .remove(K_DELETED)
             .remove(K_SYNC)
-        if (provider == Provider.YUKETANG) {
-            edit.remove(K_YT_COOKIE)
-                .remove(K_YT_UID)
-                .remove(K_YT_NAME)
-                .remove(K_YT_CACHE)
-        } else {
-            edit.remove(K_COOKIE)
-                .remove(K_UID)
-                .remove(K_PUID)
-                .remove(K_NAME)
-                .remove(K_CACHE)
-        }
-        edit.apply()
+            .apply()
         loggedOut = true
     }
 

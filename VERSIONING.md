@@ -30,13 +30,14 @@ versionCode = MAJOR * 10000 + MINOR * 100 + PATCH
 | 2.2.1 | 20201 |
 | 2.2.2 | 20202 |
 | 2.3.0 | 20300 |
+| 2.4.0 | 20400 |
 
 MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 
 ## 版本名与调试包
 
-- 正式版本名：`2.3.0`。
-- debug 包自动追加后缀：`2.3.0-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
+- 正式版本名：`2.4.0`。
+- debug 包自动追加后缀：`2.4.0-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
 - 应用显示名固定为 `xxtT`；「个人」页底部显示 `xxtT v版本号`。
 
 ## 命名规范
@@ -78,12 +79,12 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
    ```
-   生成 `dist/xxtT-v2.3.0.apk` 和 SHA-256。
-5. 打 Git tag：`v2.3.0`；GitHub Release 由 workflow 自动创建，**标题固定为 `v版本号`（即 tag 名）**，说明复用 `RELEASE_NOTES.md`。
+   生成 `dist/xxtT-v2.4.0.apk` 和 SHA-256。
+5. 打 Git tag：`v2.4.0`；GitHub Release 由 workflow 自动创建，**标题固定为 `v版本号`（即 tag 名）**，说明复用 `RELEASE_NOTES.md`。
 6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装；安装包文件名统一为 `xxtT-v版本号.apk`。
 
 ## 当前版本
 
-- **2.3.0**（versionCode 20300）：新增雨课堂数据源（实验性，长江默认、服务器可改）、雨课堂作业/考试/截止时间/状态映射；学习通功能不变；沿用 2.1.0 的正式签名。
-- 2.2.2（20202）修复应用内更新安装失败；2.2.1（20201）统一命名；2.2.0（20200）修正页内按钮；2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本。
-- 下一版：2.3.1（PATCH，修 Bug）或 2.4.0（MINOR，新功能）。
+- **2.4.0**（versionCode 20400）：学习通 / 雨课堂双账号同时登录、任务合并并标注来源；个人页分别登录/退出，底部全部退出；雨课堂登录默认 `www.yuketang.cn/web`、服务器跟随网页；沿用 2.1.0 的正式签名。
+- 2.3.0（20300）新增雨课堂数据源；2.2.2（20202）修复应用内更新安装失败；2.2.1（20201）统一命名；2.2.0（20200）修正页内按钮；2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本。
+- 下一版：2.4.1（PATCH，修 Bug）或 2.5.0（MINOR，新功能）。

@@ -26,12 +26,12 @@ import java.util.concurrent.TimeUnit
 class YtApi(private val prefs: Prefs) : TaskSource {
 
     companion object {
-        const val DEFAULT_HOST = "changjiang.yuketang.cn"
+        const val DEFAULT_HOST = "www.yuketang.cn"
         const val BROWSER_UA =
             "Mozilla/5.0 (Linux; Android 14; Pixel 6) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 
-        fun loginUrl(host: String): String = "https://$host/v2/web/login"
+        fun loginUrl(host: String): String = "https://$host/web"
         fun courseUrl(host: String, classroomId: String): String =
             "https://$host/v2/web/studentLog/$classroomId"
     }
@@ -230,6 +230,7 @@ class YtApi(private val prefs: Prefs) : TaskSource {
                         statusCode == 0 -> "未作答"
                         else -> "进行中"
                     } + if (total > 0) " · 满分 ${fmtScore(total)}" else "",
+                    provider = Provider.YUKETANG,
                 )
             }
 
@@ -256,6 +257,7 @@ class YtApi(private val prefs: Prefs) : TaskSource {
                     publishTime = createTime,
                     url = url,
                     statusText = if (assessed) "已完成" else "作业",
+                    provider = Provider.YUKETANG,
                 )
             }
 
