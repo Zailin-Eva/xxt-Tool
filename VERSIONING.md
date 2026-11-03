@@ -1,6 +1,6 @@
 # 版本规则
 
-学习通小工具（英文名 xxt-Tool，简写 xxtT）使用语义化版本 `MAJOR.MINOR.PATCH`，**应用名始终为「学习通小工具 / xxt-Tool」**，不随版本变化。
+xxtT（英文名 xxt-Tool；中文名「学习通小工具」仅用于 GitHub 展示）使用语义化版本 `MAJOR.MINOR.PATCH`，**应用显示名始终为 `xxtT`**，不随版本变化。
 
 ## 何时递增
 
@@ -28,14 +28,27 @@ versionCode = MAJOR * 10000 + MINOR * 100 + PATCH
 | 2.1.0 | 20100 |
 | 2.2.0 | 20200 |
 | 2.2.1 | 20201 |
+| 2.2.2 | 20202 |
 
 MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 
 ## 版本名与调试包
 
-- 正式版本名：`2.1.0`。
-- debug 包自动追加后缀：`2.1.0-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
-- 应用名不变；「个人」页底部显示实际版本名。
+- 正式版本名：`2.2.2`。
+- debug 包自动追加后缀：`2.2.2-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
+- 应用显示名固定为 `xxtT`；「个人」页底部显示 `xxtT v版本号`。
+
+## 命名规范
+
+| 对象 | 规则 | 示例 |
+|---|---|---|
+| 应用显示名 | 固定 `xxtT`（英文正式名 `xxt-Tool`；中文名仅 GitHub 展示） | `xxtT` |
+| 安装包文件 | `xxtT-v版本号.apk` | `xxtT-v2.2.2.apk` |
+| Git tag | `v版本号` | `v2.2.2` |
+| GitHub Release 标题 | 与 tag 完全一致：`v版本号` | `v2.2.2` |
+| Release 附件 | 与安装包同名 | `xxtT-v2.2.2.apk` |
+
+发布时 tag、Release 标题、APK 文件名三者的版本号必须一致；Release 标题不要再加应用名或中文说明。
 
 ## 签名与备份
 
@@ -64,12 +77,12 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
    ```
-   生成 `dist/xxtT-v2.2.1.apk` 和 SHA-256。
-5. 打 Git tag：`v2.2.1`；GitHub Release 由 workflow 自动创建，标题和说明复用 `RELEASE_NOTES.md`。
+   生成 `dist/xxtT-v2.2.2.apk` 和 SHA-256。
+5. 打 Git tag：`v2.2.2`；GitHub Release 由 workflow 自动创建，**标题固定为 `v版本号`（即 tag 名）**，说明复用 `RELEASE_NOTES.md`。
 6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装；安装包文件名统一为 `xxtT-v版本号.apk`。
 
 ## 当前版本
 
-- **2.2.1**（versionCode 20201）：应用正式更名为「学习通小工具 / xxt-Tool（xxtT）」；安装包统一命名为 `xxtT-v版本号.apk`。功能与 2.2.0 相同：页内 jsBridge、去掉原生详情页、倒计时颜色可配置、个人页精简；沿用 2.1.0 的正式签名。
-- 2.2.0（20200）修正页内按钮无反应、精简交互；2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本；1.1.0（10100）是切换签名前的 debug 预发布版。
-- 下一版：2.2.2（PATCH，修 Bug）或 2.3.0（MINOR，新功能）。
+- **2.2.2**（versionCode 20202）：修复应用内更新安装失败（改走系统安装器）；更新弹窗用「打开网页」替换「跳过此版本」；应用显示名统一为 `xxtT`。功能与 2.2.1 相同；沿用 2.1.0 的正式签名。
+- 2.2.1（20201）统一应用/安装包命名；2.2.0（20200）修正页内按钮无反应、精简交互；2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本。
+- 下一版：2.2.3（PATCH，修 Bug）或 2.3.0（MINOR，新功能）。

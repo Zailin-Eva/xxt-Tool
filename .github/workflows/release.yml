@@ -22,5 +22,5 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "dist/xxtT-${GITHUB_REF_NAME}.apk" \
-            --title "学习通小工具 xxtT ${GITHUB_REF_NAME}" \
+            --title "$GITHUB_REF_NAME" \
             --notes-file RELEASE_NOTES.md

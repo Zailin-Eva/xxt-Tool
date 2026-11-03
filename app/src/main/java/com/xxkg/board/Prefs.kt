@@ -67,11 +67,6 @@ class Prefs(ctx: Context) {
         get() = l(K_UPDATE_CHECK, 0L)
         set(v) = putL(K_UPDATE_CHECK, v)
 
-    /** 用户选择跳过的版本 code */
-    var skippedVersionCode: Int
-        get() = i(K_SKIP_VERSION, 0)
-        set(v) = putI(K_SKIP_VERSION, v)
-
     /** 最近一次抓取的原始任务 JSON */
     var cache: String
         get() = s(K_CACHE)
@@ -175,7 +170,6 @@ class Prefs(ctx: Context) {
         private const val K_SORT = "sort"
         private const val K_SYNC = "last_sync"
         private const val K_UPDATE_CHECK = "last_update_check"
-        private const val K_SKIP_VERSION = "skip_version"
         private const val K_CACHE = "cache"
         private const val K_DELETED = "deleted"
         private const val K_STATE = "states"

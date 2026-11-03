@@ -1,9 +1,7 @@
 package com.xxkg.board
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageInfo
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -15,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +28,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
- * 检查更新 → 弹窗让用户选择 → 下载 → 校验 → PackageInstaller 覆盖安装 → 重启。
+ * 检查更新 → 弹窗让用户选择 → 下载 → 校验 → 交给系统安装器覆盖安装。
  */
 object UpdateManager {
 
@@ -86,12 +85,11 @@ object UpdateManager {
                 if (manual) toast(activity, "已是最新版本")
                 return@launch
             }
-            if (!manual && prefs.skippedVersionCode == info.versionCode) return@launch
-            showDialog(activity, prefs, info)
+            showDialog(activity, info)
         }
     }
 
-    private fun showDialog(activity: AppCompatActivity, prefs: Prefs, info: UpdateInfo) {
+    private fun showDialog(activity: AppCompatActivity, info: UpdateInfo) {
         val scroll = ScrollView(activity)
         val text = TextView(activity)
         text.text = buildString {
@@ -100,6 +98,7 @@ object UpdateManager {
                 append("\n\n安装包大小：")
                 append(formatSize(info.size))
             }
+            append("\n\n如果应用内安装失败，可以点「打开网页」到 GitHub 手动下载。")
         }
         text.textSize = 13f
         text.setTextIsSelectable(true)
@@ -115,11 +114,19 @@ object UpdateManager {
             .setView(scroll)
             .setPositiveButton("立即更新") { _, _ -> downloadAndInstall(activity, info) }
             .setNegativeButton("以后再说", null)
-            .setNeutralButton("跳过此版本") { _, _ ->
-                prefs.skippedVersionCode = info.versionCode
-                toast(activity, "已跳过 v${info.versionName}")
-            }
+            .setNeutralButton("打开网页") { _, _ -> openProjectPage(activity) }
             .show()
+    }
+
+    /** 跳转到 GitHub 仓库，方便手动下载安装包。 */
+    private fun openProjectPage(activity: AppCompatActivity) {
+        try {
+            activity.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/siye4366/xxt-Tool"))
+            )
+        } catch (e: Exception) {
+            toast(activity, "无法打开浏览器")
+        }
     }
 
     private fun downloadAndInstall(activity: AppCompatActivity, info: UpdateInfo) {
@@ -260,29 +267,21 @@ object UpdateManager {
             return
         }
 
+        // 交给系统安装器（和手动点 APK 一样），比 PackageInstaller 自建 session 兼容性更好；
+        // 某些系统上后者会在 commit 阶段返回 STATUS_FAILURE(1)。
         try {
-            val installer = pm.packageInstaller
-            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-            params.setAppPackageName(activity.packageName)
-            val sessionId = installer.createSession(params)
-            val session = installer.openSession(sessionId)
-            try {
-                session.openWrite("base.apk", 0, file.length()).use { output ->
-                    file.inputStream().use { input -> input.copyTo(output) }
-                    session.fsync(output)
-                }
-                val intent = Intent(activity, InstallResultReceiver::class.java)
-                    .setAction(InstallResultReceiver.ACTION_INSTALL_RESULT)
-                val pending = PendingIntent.getBroadcast(
-                    activity,
-                    sessionId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                session.commit(pending.intentSender)
-            } finally {
-                session.close()
+            val uri = FileProvider.getUriForFile(
+                activity,
+                "${activity.packageName}.fileprovider",
+                file
+            )
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            activity.startActivity(intent)
+            DebugLog.log("已交给系统安装器: ${file.name}")
+            toast(activity, "请在系统安装界面点「更新」")
         } catch (e: Exception) {
             DebugLog.log("启动安装失败: ${e.message}")
             toast(activity, "安装失败：${e.message}")

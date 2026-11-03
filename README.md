@@ -1,16 +1,16 @@
-# 学习通小工具 · xxt-Tool（xxtT）
+# xxtT · xxt-Tool
 
 一个轻量的 Android 小工具：登录学习通后，把**作业和考试**汇总到四个栏目里，按剩余时间排好，省得每次在学习通里翻五六个入口。
 
-> xxt-Tool (xxtT) — a tiny Android dashboard for Chaoxing (学习通): log in once, and see all your homework & exams sorted by deadline — 未完成 / 待批阅 / 已完成 / 已过期.
+> 中文名（仅 GitHub 展示用）：学习通小工具
 
 - 体积约 1 MB，无后台常驻、无推送、无广告
 - 权限只有网络和安装更新（`REQUEST_INSTALL_PACKAGES`）
 - 支持 Android 7.0（API 24）及以上
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
-- 安装包命名统一为 `xxtT-v版本号.apk`
+- 安装包命名统一为 `xxtT-v版本号.apk`；GitHub Release 标题统一为 `v版本号`
 
-当前版本：**2.2.1**（versionCode 20201），版本规则见 [VERSIONING.md](VERSIONING.md)。
+当前版本：**2.2.2**（versionCode 20202），版本规则见 [VERSIONING.md](VERSIONING.md)。
 
 ## 功能
 
@@ -28,8 +28,8 @@
 - 单条**长按 → 移除**，可在「个人」页恢复
 - 点任意一条**直接打开学习通页面**，页内的「继续答题 / 查看详情 / 修改答案」都能正常点（内置了学习通的 jsBridge 桥接）；作业页长按标题可查看「页面诊断」
 - 「个人 → 退出登录」清空本机账号、课程与作业缓存，回到空白的未登录界面，可换号登录
-- 启动每天检查一次 GitHub 更新；「个人 → 检查更新」可手动检查，弹窗选择「立即更新 / 以后再说 / 跳过此版本」
-- 下载完成后校验包名、versionCode 和签名，再用 `PackageInstaller` 覆盖安装并重启
+- 启动每天检查一次 GitHub 更新；「个人 → 检查更新」可手动检查，弹窗选择「立即更新 / 以后再说 / 打开网页」
+- 下载完成后校验包名、versionCode 和签名，再交给系统安装器覆盖安装（安装完成后手动打开 App）
 - 下拉刷新；打开 App 自动刷新
 - 「个人 → 抓取日志」可查看每一步请求结果，一键复制，方便排查接口变动
 
@@ -41,7 +41,7 @@
 - **MINOR**：新增用户可见功能，清零 PATCH；
 - **PATCH**：只修 Bug/文案/样式。
 
-`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.2.1 = 20201。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.2.2 = 20202。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -69,11 +69,11 @@
 
 两种方式：
 
-1. 直接下载仓库里的安装包：**[`dist/xxtT-v2.2.1.apk`](dist/xxtT-v2.2.1.apk)**（2.2.1 正式签名）
+1. 直接下载仓库里的安装包：**[`dist/xxtT-v2.2.2.apk`](dist/xxtT-v2.2.2.apk)**（2.2.2 正式签名）
 2. 到 [Releases](../../releases) 页面下载
 
 > **2.0.0 起使用新的正式签名 key，2.1.0 / 2.2.x 沿用同一把 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次；之后 2.0.x / 2.1.x / 2.2.x 都可以直接覆盖安装且保留数据。卸载会清掉登录，重新登录即可。
-> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.2.1.apk`）。开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.2.1-debug`）。正式发布包用 `scripts/release.ps1` 生成。
+> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.2.2.apk`）。开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.2.2-debug`）。正式发布包用 `scripts/release.ps1` 生成。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
@@ -119,7 +119,6 @@ app/src/main/java/com/xxkg/board/
 ├─ SettingsActivity.kt  个人页（时间窗口、颜色提醒、日志、恢复、退出登录、检查更新）
 ├─ UpdateChecker.kt     检查 GitHub Release / 版本比较
 ├─ UpdateManager.kt     更新弹窗 / 下载 / 校验 / 安装
-├─ InstallResultReceiver.kt 安装结果 / 更新后重启
 ├─ XtApi.kt             抓取：课程/作业/考试/详情 + 状态变化追踪
 ├─ HtmlParsers.kt       H5 页面解析
 ├─ Logic.kt             时间格式化 + 四栏分类规则

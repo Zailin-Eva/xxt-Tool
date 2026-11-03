@@ -46,7 +46,7 @@ class SettingsActivity : AppCompatActivity() {
         btnUpdate = findViewById(R.id.btnUpdate)
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
-        findViewById<TextView>(R.id.tvVersion).text = "学习通小工具 xxtT v" + versionName() + " · 仅本机使用"
+        findViewById<TextView>(R.id.tvVersion).text = "xxtT v" + versionName() + " · 仅本机使用"
         findViewById<TextView>(R.id.btnLog).setOnClickListener { showLog() }
         btnRestore.setOnClickListener { confirmRestore() }
         btnLogout.setOnClickListener { confirmLogout() }
