@@ -153,11 +153,28 @@ class LogicTest {
 
     @Test
     fun `剩余时间文案分级`() {
-        assertTrue(TimeFmt.remain(now, now + 5 * day).text.startsWith("剩 5天"))
-        assertEquals(TimeFmt.C_MUTED, TimeFmt.remain(now, now + 5 * day).color)
+        assertTrue(TimeFmt.remain(now, now + 6 * day).text.startsWith("剩 6天"))
+        // 默认 5/1：>=5 天绿色，>=1 天橙色，<1 天红色
+        assertEquals(TimeFmt.C_GREEN, TimeFmt.remain(now, now + 6 * day).color)
+        assertEquals(TimeFmt.C_GREEN, TimeFmt.remain(now, now + 5 * day).color)
         assertEquals(TimeFmt.C_SOON, TimeFmt.remain(now, now + 2 * day).color)
         assertEquals(TimeFmt.C_URGENT, TimeFmt.remain(now, now + 3600_000L).color)
         assertEquals(4, TimeFmt.remain(now, now - 2 * day).level)
+    }
+
+    @Test
+    fun `颜色节点可以改成 7 和 3`() {
+        assertEquals(TimeFmt.C_GREEN, TimeFmt.remain(now, now + 8 * day, 7, 3).color)
+        assertEquals(TimeFmt.C_SOON, TimeFmt.remain(now, now + 3 * day, 7, 3).color)
+        assertEquals(TimeFmt.C_URGENT, TimeFmt.remain(now, now + 2 * day, 7, 3).color)
+    }
+
+    @Test
+    fun `顶部大时间格式`() {
+        assertEquals("2天3时", TimeFmt.bigCountdown(now, now + 2 * day + 3 * 3_600_000L))
+        assertEquals("5时", TimeFmt.bigCountdown(now, now + 5 * 3_600_000L))
+        assertEquals("小于1时", TimeFmt.bigCountdown(now, now + 20 * 60_000L))
+        assertEquals("已过期", TimeFmt.bigCountdown(now, now - day))
     }
 
     @Test

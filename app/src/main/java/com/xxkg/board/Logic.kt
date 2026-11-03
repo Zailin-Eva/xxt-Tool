@@ -10,6 +10,7 @@ object TimeFmt {
     const val HOUR = 3_600_000L
     const val MIN = 60_000L
 
+    val C_GREEN = 0xFF2E7D32.toInt()
     val C_MUTED = 0xFF999999.toInt()
     val C_SOON = 0xFFE8890C.toInt()
     val C_URGENT = 0xFFD0021B.toInt()
@@ -103,14 +104,22 @@ object TimeFmt {
 
     data class Remain(val text: String, val color: Int, val level: Int)
 
-    /** level: 0 未知, 1 宽松, 2 临近, 3 紧急, 4 已过期 */
-    fun remain(now: Long, end: Long): Remain {
+    /**
+     * 剩余时间文案与颜色。
+     * greenDays：剩余 >= 该天数显示绿色；orangeDays：剩余 >= 该天数（且 < greenDays）显示橙色；
+     * 再少就是红色。默认 5/1，即不足 24 小时为红色。
+     *
+     * level: 0 未知, 1 宽松(绿), 2 临近(橙), 3 紧急(红), 4 已过期
+     */
+    fun remain(now: Long, end: Long, greenDays: Int = 5, orangeDays: Int = 1): Remain {
         if (end <= 0L) return Remain("截止未知", C_MUTED, 0)
         val d = end - now
         if (d <= 0L) {
             val days = (-d) / DAY
             return Remain(if (days >= 1) "已过期 ${days} 天" else "已过期", C_EXPIRED, 4)
         }
+        val green = greenDays.coerceAtLeast(2)
+        val orange = orangeDays.coerceIn(1, green - 1)
         val days = d / DAY
         val hours = (d % DAY) / HOUR
         val mins = (d % HOUR) / MIN
@@ -120,27 +129,32 @@ object TimeFmt {
             else -> "${mins}分"
         }
         val color = when {
-            days >= 3 -> C_MUTED
-            days >= 1 -> C_SOON
+            days >= green -> C_GREEN
+            days >= orange -> C_SOON
             else -> C_URGENT
         }
         val level = when {
-            days >= 3 -> 1
-            days >= 1 -> 2
+            days >= green -> 1
+            days >= orange -> 2
             else -> 3
         }
         return Remain("剩 $text", color, level)
     }
 
-    /** 顶部大字号倒计时：X 日 x 时 */
+    /**
+     * 顶部大字号倒计时：X天X时；不足 24 小时只显示 X时；不足 1 小时显示「小于1时」。
+     */
     fun bigCountdown(now: Long, end: Long): String {
         if (end <= 0L) return "--"
         val d = end - now
         if (d <= 0L) return "已过期"
         val days = d / DAY
         val hours = (d % DAY) / HOUR
-        val mins = (d % HOUR) / MIN
-        return if (days > 0) "$days 日 $hours 时" else "$hours 时 $mins 分"
+        return when {
+            days > 0 -> "${days}天${hours}时"
+            hours >= 1 -> "${hours}时"
+            else -> "小于1时"
+        }
     }
 
     /** 距某时刻过了多少天（不足一天返回 0） */

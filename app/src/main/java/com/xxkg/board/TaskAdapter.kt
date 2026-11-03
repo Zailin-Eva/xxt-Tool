@@ -13,11 +13,15 @@ class TaskAdapter(
 
     private val items = ArrayList<Task>()
     private var mode = 0
+    private var greenDays = 5
+    private var orangeDays = 1
 
-    fun submit(list: List<Task>, mode: Int) {
+    fun submit(list: List<Task>, mode: Int, greenDays: Int = 5, orangeDays: Int = 1) {
         items.clear()
         items.addAll(list)
         this.mode = mode
+        this.greenDays = greenDays
+        this.orangeDays = orangeDays
         notifyDataSetChanged()
     }
 
@@ -44,7 +48,7 @@ class TaskAdapter(
         val course = t.courseName.ifEmpty { "未知课程" }
         when (mode) {
             0 -> {
-                val r = TimeFmt.remain(now, t.endTime)
+                val r = TimeFmt.remain(now, t.endTime, greenDays, orangeDays)
                 holder.right.text = r.text
                 holder.right.setTextColor(r.color)
                 holder.sub.text = if (t.endTime > 0) {
@@ -83,7 +87,7 @@ class TaskAdapter(
 
             else -> {
                 if (t.endTime > 0) {
-                    val r = TimeFmt.remain(now, t.endTime)
+                    val r = TimeFmt.remain(now, t.endTime, greenDays, orangeDays)
                     holder.right.text = r.text
                     holder.right.setTextColor(r.color)
                     holder.sub.text = "$course · 截止 " + TimeFmt.dateTime(t.endTime)

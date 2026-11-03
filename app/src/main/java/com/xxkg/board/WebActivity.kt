@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
 import android.webkit.PermissionRequest
@@ -32,6 +33,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import org.json.JSONObject
 import java.util.Locale
 
 /** 用已登录的 Cookie 打开学习通具体页面（作业答题 / 考试 / 详情）。 */
@@ -99,6 +101,11 @@ class WebActivity : AppCompatActivity() {
             setAcceptThirdPartyCookies(webView, true)
         }
 
+        // 学习通页面里的“继续答题 / 修改答案”等按钮不是普通链接，而是调用它自己的
+        // jsBridge（androidjsbridge.postNotification("CLIENT_OPEN_URL", ...)）交给原生 App 打开。
+        // 不实现这个桥，按钮就会静默无反应，所以这里补一个最小实现。
+        webView.addJavascriptInterface(ChaoxingJsBridge(), "androidjsbridge")
+
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
@@ -119,6 +126,8 @@ class WebActivity : AppCompatActivity() {
                 if (tvTitle.text.isNullOrEmpty() || tvTitle.text == "学习通") {
                     view?.title?.takeIf { it.isNotBlank() }?.let { tvTitle.text = it }
                 }
+                // 告诉页面“当前是 Android 原生壳”，它才会走 androidjsbridge 而不是 iframe 协议
+                view?.evaluateJavascript(BRIDGE_ATTACH_JS, null)
                 DebugLog.log("WebView 完成: ${view?.url} | ${view?.title}")
             }
 
@@ -320,6 +329,62 @@ class WebActivity : AppCompatActivity() {
         }
     }
 
+    // ------------------------------------------------------------ 学习通 jsBridge
+
+    /** 页面里的 androidjsbridge.postNotification(name, json) 会进到这里（非 UI 线程）。 */
+    private inner class ChaoxingJsBridge {
+        @JavascriptInterface
+        fun postNotification(name: String?, payload: String?) {
+            if (name.isNullOrEmpty()) return
+            val safePayload = payload.orEmpty()
+            runOnUiThread { handleBridgeNotification(name, safePayload) }
+        }
+    }
+
+    private fun isChaoxingPage(): Boolean {
+        val host = Uri.parse(webView.url.orEmpty()).host.orEmpty().lowercase(Locale.ROOT)
+        return host == "chaoxing.com" || host.endsWith(".chaoxing.com")
+    }
+
+    private fun handleBridgeNotification(name: String, payload: String) {
+        if (!isChaoxingPage()) return
+        DebugLog.log("jsBridge: $name ${payload.take(160)}")
+        when (name) {
+            // 页面要打开下一个原生页面：继续答题 / 查看答案 / 修改作业 / 外部链接
+            "CLIENT_OPEN_URL" -> {
+                val json = try {
+                    JSONObject(payload)
+                } catch (e: Exception) {
+                    null
+                } ?: return
+                val raw = json.optString("webUrl").trim()
+                if (raw.isEmpty()) return
+                val url = raw
+                    .substringBefore("#INNER")
+                    .replace(Regex("&?keyboardDisplayRequiresUserAction=1"), "")
+                if (url.isEmpty()) return
+                val absolute = when {
+                    url.startsWith("http://") || url.startsWith("https://") -> url
+                    url.startsWith("//") -> "https:$url"
+                    url.startsWith("/") -> "https://mooc1-api.chaoxing.com$url"
+                    else -> return
+                }
+                val host = Uri.parse(absolute).host.orEmpty().lowercase(Locale.ROOT)
+                if (host == "chaoxing.com" || host.endsWith(".chaoxing.com")) {
+                    load(absolute, currentUrl)
+                } else {
+                    openExternal(Uri.parse(absolute))
+                }
+            }
+
+            // 页面要求刷新（例如提交后）
+            "CLIENT_REFRESH_EVENT" -> webView.reload()
+
+            // 其它通知（图片预览、自定义菜单、返回拦截等）暂不处理
+            else -> Unit
+        }
+    }
+
     private fun injectCookies() {
         val header = prefs.cookie
         if (header.isEmpty()) {
@@ -470,5 +535,15 @@ class WebActivity : AppCompatActivity() {
         const val EXTRA_REFERER = "referer"
         const val EXTRA_TITLE = "title"
         private const val REQ_FILE = 4001
+
+        /**
+         * 学习通自己的 CXJSBridge.js 在 device 不是 android 时会走 jsbridge:// iframe，
+         * 纯 WebView 里没人接收，按钮就“点了没反应”。页面加载完后把它切成 android 模式。
+         */
+        private const val BRIDGE_ATTACH_JS =
+            "(function(){try{" +
+                "if(window.jsBridge&&typeof window.jsBridge.setDevice==='function'){" +
+                "window.jsBridge.setDevice('android');return 'android';}" +
+                "return 'no-bridge';}catch(e){return 'error';}})()"
     }
 }

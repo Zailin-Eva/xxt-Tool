@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvNearestTitle: TextView
     private lateinit var tvNearestMeta: TextView
     private lateinit var tvCountdown: TextView
-    private lateinit var tvCountdownNote: TextView
     private lateinit var tvSort: TextView
     private lateinit var tvRange: TextView
     private lateinit var tvEmpty: TextView
@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private var buckets = Buckets()
     private var tab = 0
     private var refreshing = false
+    private var lastOpenedTaskKey = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         tvNearestTitle = findViewById(R.id.tvNearestTitle)
         tvNearestMeta = findViewById(R.id.tvNearestMeta)
         tvCountdown = findViewById(R.id.tvCountdown)
-        tvCountdownNote = findViewById(R.id.tvCountdownNote)
         tvSort = findViewById(R.id.tvSort)
         tvRange = findViewById(R.id.tvRange)
         tvEmpty = findViewById(R.id.tvEmpty)
@@ -93,7 +93,14 @@ class MainActivity : AppCompatActivity() {
             render()
         }
 
-        tvRange.setOnClickListener { showRangeDialog() }
+        // 时间窗口只影响「待批阅 / 已完成」两栏，其它栏目下置灰不可点
+        tvRange.setOnClickListener {
+            if (tab != 1 && tab != 2) {
+                toast("只有「待批阅」和「已完成」可以调整时间窗口")
+                return@setOnClickListener
+            }
+            showRangeDialog()
+        }
 
         swipe.setOnRefreshListener { refresh() }
 
@@ -122,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // 详情页/退出登录可能改了本地缓存，重新读一遍再渲染
+        // 从学习通页面/退出登录回来时，本地缓存可能已变化，重新读一遍再渲染
         all = Task.decode(prefs.cache)
         render()
         // 从别处登录成功回来（缓存为空且从未同步过）时自动抓一次
@@ -144,6 +151,9 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQ_LOGIN && resultCode == Activity.RESULT_OK) {
             prefs.loggedOut = false
             refresh()
+        } else if (requestCode == REQ_TASK) {
+            // 从学习通页面回到列表：这条作业可能刚交过，轻量刷新它的状态
+            refreshTaskStatus(lastOpenedTaskKey)
         }
     }
 
@@ -161,6 +171,7 @@ class MainActivity : AppCompatActivity() {
         tvSort.text = "排序：" + Categorizer.SORT_LABELS[prefs.sortMode]
         tvSort.setTextColor(if (tab == 0) 0xFF333333.toInt() else 0xFFBBBBBB.toInt())
         tvRange.text = "待批阅 ${prefs.xDays} 天 / 已完成 ${prefs.yDays} 天"
+        tvRange.setTextColor(if (tab == 1 || tab == 2) 0xFF333333.toInt() else 0xFFBBBBBB.toInt())
 
         // 顶部卡片
         // 顶部卡片始终取真正最近截止的一条，不受当前排序方式影响
@@ -172,13 +183,11 @@ class MainActivity : AppCompatActivity() {
             tvNearestMeta.text = if (prefs.isLoggedIn) "下拉可刷新" else "请先登录学习通"
             tvCountdown.text = "--"
             tvCountdown.setTextColor(TimeFmt.C_TEXT)
-            tvCountdownNote.text = "（该作业剩余时间）"
         } else {
             tvNearestTitle.text = first.title
-            val r = TimeFmt.remain(now, first.endTime)
+            val r = TimeFmt.remain(now, first.endTime, prefs.greenDays, prefs.orangeDays)
             tvCountdown.text = TimeFmt.bigCountdown(now, first.endTime)
-            tvCountdown.setTextColor(if (r.level >= 4) TimeFmt.C_EXPIRED else TimeFmt.C_TEXT)
-            tvCountdownNote.text = "（该作业剩余时间）"
+            tvCountdown.setTextColor(r.color)
             val soon = buckets.todo.count { it.endTime > now && it.endTime - now <= TimeFmt.DAY }
             val week = buckets.todo.count { it.endTime > now && it.endTime - now <= 7 * TimeFmt.DAY }
             val course = first.courseName.ifEmpty { "" }
@@ -206,7 +215,7 @@ class MainActivity : AppCompatActivity() {
             2 -> buckets.done
             else -> buckets.expired
         }
-        adapter.submit(data, tab)
+        adapter.submit(data, tab, prefs.greenDays, prefs.orangeDays)
 
         if (data.isEmpty()) {
             emptyBox.visibility = android.view.View.VISIBLE
@@ -261,9 +270,36 @@ class MainActivity : AppCompatActivity() {
     // ------------------------------------------------------------ 交互
 
     private fun openTask(t: Task) {
-        val i = Intent(this, TaskDetailActivity::class.java)
-        i.putExtra(TaskDetailActivity.EXTRA_TASK_KEY, t.key)
-        startActivity(i)
+        if (t.url.isEmpty()) {
+            toast("这条没有可打开的页面")
+            return
+        }
+        // 直接打开学习通扒下来的作业/考试页面，页内的「继续答题 / 修改答案」由 jsBridge 接管
+        lastOpenedTaskKey = t.key
+        val i = Intent(this, WebActivity::class.java)
+        i.putExtra(WebActivity.EXTRA_URL, t.url)
+        i.putExtra(WebActivity.EXTRA_REFERER, XtApi.WEB + "/")
+        i.putExtra(WebActivity.EXTRA_TITLE, t.title)
+        startActivityForResult(i, REQ_TASK)
+    }
+
+    /** 从作业页回来：只重拉这条所在课程的列表，更新它的状态/分数，避免整页重刷。 */
+    private fun refreshTaskStatus(key: String) {
+        if (key.isEmpty() || !prefs.isLoggedIn) return
+        val task = all.firstOrNull { it.key == key } ?: return
+        scope.launch {
+            try {
+                val updated = withContext(Dispatchers.IO) { api.refreshTaskStatus(task) }
+                val list = all.toMutableList()
+                val index = list.indexOfFirst { it.key == updated.key }
+                if (index >= 0) list[index] = updated
+                all = list
+                prefs.cache = Task.encode(all)
+                render()
+            } catch (e: Exception) {
+                // 状态刷新失败不打扰用户，下次下拉刷新会补上
+            }
+        }
     }
 
     private fun confirmDelete(t: Task) {
@@ -305,5 +341,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQ_LOGIN = 1001
+        private const val REQ_TASK = 1002
     }
 }

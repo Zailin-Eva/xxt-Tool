@@ -216,7 +216,15 @@ class XtApi(private val prefs: Prefs) {
             return task
         }
         val found = list.firstOrNull { it.key == task.key } ?: return task
+        val before = task.status
         task.status = found.status
+        if (found.status != before) {
+            // 和 fetchAll 的状态变化追踪保持一致：状态刚变，就把“现在”记成提交/批阅时间
+            task.stageTime = System.currentTimeMillis()
+            val states = prefs.states()
+            states[task.key] = task.status.name to task.stageTime
+            prefs.saveStates(states)
+        }
         if (found.grade.isNotEmpty()) task.grade = found.grade
         if (found.endTime > 0) task.endTime = found.endTime
         if (found.publishTime > 0) task.publishTime = found.publishTime

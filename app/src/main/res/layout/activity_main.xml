@@ -73,15 +73,6 @@
                 android:text="--"
                 android:textColor="#111111"
                 android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/tvCountdownNote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="（该作业剩余时间）"
-                android:textColor="#D0021B"
-                android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 

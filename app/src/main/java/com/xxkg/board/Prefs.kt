@@ -43,6 +43,16 @@ class Prefs(ctx: Context) {
         get() = i(K_Y, 7)
         set(v) = putI(K_Y, v)
 
+    /** 剩余时间显示绿色节点（天）：>= 该天数显示绿色 */
+    var greenDays: Int
+        get() = i(K_GREEN_DAYS, 5)
+        set(v) = putI(K_GREEN_DAYS, v)
+
+    /** 剩余时间显示橙色节点（天）：>= 该天数且 < 绿色节点显示橙色，低于该天数显示红色 */
+    var orangeDays: Int
+        get() = i(K_ORANGE_DAYS, 1)
+        set(v) = putI(K_ORANGE_DAYS, v)
+
     /** 未完成排序方式 0..3 */
     var sortMode: Int
         get() = i(K_SORT, 0)
@@ -160,6 +170,8 @@ class Prefs(ctx: Context) {
         private const val K_NAME = "name"
         private const val K_X = "x_days"
         private const val K_Y = "y_days"
+        private const val K_GREEN_DAYS = "green_days"
+        private const val K_ORANGE_DAYS = "orange_days"
         private const val K_SORT = "sort"
         private const val K_SYNC = "last_sync"
         private const val K_UPDATE_CHECK = "last_update_check"

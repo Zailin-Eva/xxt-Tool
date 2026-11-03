@@ -26,6 +26,7 @@ versionCode = MAJOR * 10000 + MINOR * 100 + PATCH
 | 1.2.0 | 10200 |
 | 2.0.0 | 20000 |
 | 2.1.0 | 20100 |
+| 2.2.0 | 20200 |
 
 MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 
@@ -62,12 +63,12 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
    ```
-   生成 `dist/chaoxing-board-v2.1.0.apk` 和 SHA-256。
-5. 打 Git tag：`v2.1.0`；GitHub Release 由 workflow 自动创建，标题和说明复用 `RELEASE_NOTES.md`。
+   生成 `dist/chaoxing-board-v2.2.0.apk` 和 SHA-256。
+5. 打 Git tag：`v2.2.0`；GitHub Release 由 workflow 自动创建，标题和说明复用 `RELEASE_NOTES.md`。
 6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装。
 
 ## 当前版本
 
-- **2.1.0**（versionCode 20100）：应用内检查更新、下载校验、PackageInstaller 覆盖安装、更新后重启、跳过版本；沿用 2.0.0 的正式签名。
-- 2.0.0（20000）是签名迁移版本；1.1.0（10100）是切换签名前的 debug 预发布版。
-- 下一版：2.1.1（PATCH，修 Bug）或 2.2.0（MINOR，新功能）。
+- **2.2.0**（versionCode 20200）：页内 jsBridge（继续答题/修改答案可用）、去掉原生详情页、顶部倒计时格式与颜色分级可配置、个人页精简；沿用 2.1.0 的正式签名。
+- 2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本；1.1.0（10100）是切换签名前的 debug 预发布版。
+- 下一版：2.2.1（PATCH，修 Bug）或 2.3.0（MINOR，新功能）。

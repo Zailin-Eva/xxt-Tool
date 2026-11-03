@@ -1,6 +1,5 @@
 package com.xxkg.board
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -17,23 +16,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var prefs: Prefs
     private lateinit var tvAccount: TextView
     private lateinit var tvSync: TextView
     private lateinit var btnX: TextView
     private lateinit var btnY: TextView
+    private lateinit var btnGreen: TextView
+    private lateinit var btnOrange: TextView
     private lateinit var btnRestore: TextView
     private lateinit var btnLogout: TextView
-    private lateinit var btnRelogin: TextView
     private lateinit var btnUpdate: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,24 +39,22 @@ class SettingsActivity : AppCompatActivity() {
         tvSync = findViewById(R.id.tvSync)
         btnX = findViewById(R.id.btnX)
         btnY = findViewById(R.id.btnY)
+        btnGreen = findViewById(R.id.btnGreen)
+        btnOrange = findViewById(R.id.btnOrange)
         btnRestore = findViewById(R.id.btnRestore)
         btnLogout = findViewById(R.id.btnLogout)
-        btnRelogin = findViewById(R.id.btnRelogin)
         btnUpdate = findViewById(R.id.btnUpdate)
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.tvVersion).text = "作业看板 v" + versionName() + " · 仅本机使用"
-        btnRelogin.setOnClickListener {
-            startActivityForResult(Intent(this, LoginActivity::class.java), REQ_LOGIN)
-        }
-        findViewById<TextView>(R.id.btnRefresh).setOnClickListener { refreshNow() }
         findViewById<TextView>(R.id.btnLog).setOnClickListener { showLog() }
-        findViewById<TextView>(R.id.btnClear).setOnClickListener { confirmClear() }
         btnRestore.setOnClickListener { confirmRestore() }
         btnLogout.setOnClickListener { confirmLogout() }
         btnUpdate.setOnClickListener { UpdateManager.manualCheck(this) }
         btnX.setOnClickListener { editDays("待批阅时间窗口（天）", prefs.xDays) { prefs.xDays = it } }
         btnY.setOnClickListener { editDays("已完成保留时间（天）", prefs.yDays) { prefs.yDays = it } }
+        btnGreen.setOnClickListener { editGreenDays() }
+        btnOrange.setOnClickListener { editOrangeDays() }
 
         bindState()
     }
@@ -70,16 +62,6 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         bindState()
-    }
-
-    override fun onDestroy() {
-        scope.cancel()
-        super.onDestroy()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_LOGIN && resultCode == Activity.RESULT_OK) bindState()
     }
 
     private fun bindState() {
@@ -95,7 +77,8 @@ class SettingsActivity : AppCompatActivity() {
         }
         btnX.text = "${prefs.xDays} 天"
         btnY.text = "${prefs.yDays} 天"
-        btnRelogin.text = if (prefs.isLoggedIn) "重新登录" else "登录学习通"
+        btnGreen.text = "${prefs.greenDays} 天"
+        btnOrange.text = "${prefs.orangeDays} 天"
         btnLogout.visibility = if (prefs.isLoggedIn) View.VISIBLE else View.GONE
         btnUpdate.text = "检查更新（当前 v" + versionName() + "）"
         val n = prefs.deletedKeys().size
@@ -119,23 +102,21 @@ class SettingsActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun refreshNow() {
-        if (!prefs.isLoggedIn) {
-            toast("请先登录")
-            return
+    /** 绿色节点必须比橙色节点大至少 1 天，否则两个颜色会重叠。 */
+    private fun editGreenDays() {
+        editDays("绿色提醒：剩余至少（天）", prefs.greenDays) { value ->
+            val green = value.coerceAtLeast(prefs.orangeDays + 1)
+            prefs.greenDays = green
+            if (green != value) toast("绿色节点需大于橙色节点，已改为 $green 天")
         }
-        toast("正在刷新…")
-        scope.launch {
-            try {
-                val api = XtApi(prefs)
-                val snap = api.fetchAll()
-                prefs.cache = Task.encode(snap.tasks)
-                prefs.lastSync = System.currentTimeMillis()
-                bindState()
-                toast("已更新 ${snap.tasks.size} 条" + if (snap.errors.isEmpty()) "" else "（${snap.errors.size} 项失败）")
-            } catch (e: Exception) {
-                toast("刷新失败：" + (e.message ?: "未知错误"))
-            }
+    }
+
+    /** 橙色节点至少 1 天，且必须小于绿色节点。 */
+    private fun editOrangeDays() {
+        editDays("橙色提醒：剩余至少（天）", prefs.orangeDays) { value ->
+            val orange = value.coerceIn(1, (prefs.greenDays - 1).coerceAtLeast(1))
+            prefs.orangeDays = orange
+            if (orange != value) toast("橙色节点需小于绿色节点，已改为 $orange 天")
         }
     }
 
@@ -187,25 +168,6 @@ class SettingsActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun confirmClear() {
-        AlertDialog.Builder(this)
-            .setTitle("清除缓存与本地数据")
-            .setMessage("会退出登录、清空已抓取的数据和设置，需要重新登录学习通。确定吗？")
-            .setNegativeButton("取消", null)
-            .setPositiveButton("清除") { _, _ ->
-                prefs.clearAll()
-                DebugLog.clear()
-                CookieManager.getInstance().removeAllCookies(null)
-                CookieManager.getInstance().flush()
-                toast("已清除")
-                val i = Intent(this, MainActivity::class.java)
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(i)
-                finish()
-            }
-            .show()
-    }
-
     private fun confirmRestore() {
         AlertDialog.Builder(this)
             .setTitle("恢复被清理的条目")
@@ -226,8 +188,4 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-
-    companion object {
-        private const val REQ_LOGIN = 2001
-    }
 }
