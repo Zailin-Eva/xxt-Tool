@@ -20,7 +20,7 @@ if (-not (Test-Path $apk)) { throw "release APK not found: $apk" }
 
 $dist = Join-Path $proj 'dist'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
-$dest = Join-Path $dist "chaoxing-board-v$Version.apk"
+$dest = Join-Path $dist "xxtT-v$Version.apk"
 Copy-Item -LiteralPath $apk -Destination $dest -Force
 
 $hash = (Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash.ToLower()

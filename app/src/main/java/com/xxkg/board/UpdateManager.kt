@@ -170,7 +170,7 @@ object UpdateManager {
     private fun download(info: UpdateInfo, file: File, onProgress: (Int) -> Unit): Boolean {
         val request = Request.Builder()
             .url(info.apkUrl)
-            .header("User-Agent", "chaoxing-board")
+            .header("User-Agent", "xxtT")
             .build()
         return try {
             client.newCall(request).execute().use { response ->

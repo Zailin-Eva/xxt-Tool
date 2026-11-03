@@ -22,7 +22,7 @@ data class UpdateInfo(
 /** 从 GitHub Releases 检查新版本。 */
 object UpdateChecker {
 
-    private const val REPO = "siye4366/chaoxing-homework-board"
+    private const val REPO = "siye4366/xxt-Tool"
     private const val API = "https://api.github.com/repos/$REPO/releases/latest"
 
     private val client = OkHttpClient.Builder()
@@ -59,7 +59,7 @@ object UpdateChecker {
     suspend fun check(context: Context): UpdateInfo? = withContext(Dispatchers.IO) {
         val request = Request.Builder()
             .url(API)
-            .header("User-Agent", "chaoxing-board")
+            .header("User-Agent", "xxtT")
             .header("Accept", "application/vnd.github+json")
             .build()
 

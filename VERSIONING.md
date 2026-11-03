@@ -1,6 +1,6 @@
 # 版本规则
 
-作业看板使用语义化版本 `MAJOR.MINOR.PATCH`，**应用名始终为「作业看板」**，不随版本变化。
+学习通小工具（英文名 xxt-Tool，简写 xxtT）使用语义化版本 `MAJOR.MINOR.PATCH`，**应用名始终为「学习通小工具 / xxt-Tool」**，不随版本变化。
 
 ## 何时递增
 
@@ -27,6 +27,7 @@ versionCode = MAJOR * 10000 + MINOR * 100 + PATCH
 | 2.0.0 | 20000 |
 | 2.1.0 | 20100 |
 | 2.2.0 | 20200 |
+| 2.2.1 | 20201 |
 
 MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 
@@ -63,12 +64,12 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
    ```
-   生成 `dist/chaoxing-board-v2.2.0.apk` 和 SHA-256。
-5. 打 Git tag：`v2.2.0`；GitHub Release 由 workflow 自动创建，标题和说明复用 `RELEASE_NOTES.md`。
-6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装。
+   生成 `dist/xxtT-v2.2.1.apk` 和 SHA-256。
+5. 打 Git tag：`v2.2.1`；GitHub Release 由 workflow 自动创建，标题和说明复用 `RELEASE_NOTES.md`。
+6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装；安装包文件名统一为 `xxtT-v版本号.apk`。
 
 ## 当前版本
 
-- **2.2.0**（versionCode 20200）：页内 jsBridge（继续答题/修改答案可用）、去掉原生详情页、顶部倒计时格式与颜色分级可配置、个人页精简；沿用 2.1.0 的正式签名。
-- 2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本；1.1.0（10100）是切换签名前的 debug 预发布版。
-- 下一版：2.2.1（PATCH，修 Bug）或 2.3.0（MINOR，新功能）。
+- **2.2.1**（versionCode 20201）：应用正式更名为「学习通小工具 / xxt-Tool（xxtT）」；安装包统一命名为 `xxtT-v版本号.apk`。功能与 2.2.0 相同：页内 jsBridge、去掉原生详情页、倒计时颜色可配置、个人页精简；沿用 2.1.0 的正式签名。
+- 2.2.0（20200）修正页内按钮无反应、精简交互；2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本；1.1.0（10100）是切换签名前的 debug 预发布版。
+- 下一版：2.2.2（PATCH，修 Bug）或 2.3.0（MINOR，新功能）。

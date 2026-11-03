@@ -1,15 +1,16 @@
-# 学习通作业看板 · Chaoxing Homework Board
+# 学习通小工具 · xxt-Tool（xxtT）
 
 一个轻量的 Android 小工具：登录学习通后，把**作业和考试**汇总到四个栏目里，按剩余时间排好，省得每次在学习通里翻五六个入口。
 
-> A tiny Android dashboard for Chaoxing (学习通): log in once, and see all your homework & exams sorted by deadline — 未完成 / 待批阅 / 已完成 / 已过期.
+> xxt-Tool (xxtT) — a tiny Android dashboard for Chaoxing (学习通): log in once, and see all your homework & exams sorted by deadline — 未完成 / 待批阅 / 已完成 / 已过期.
 
 - 体积约 1 MB，无后台常驻、无推送、无广告
 - 权限只有网络和安装更新（`REQUEST_INSTALL_PACKAGES`）
 - 支持 Android 7.0（API 24）及以上
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
+- 安装包命名统一为 `xxtT-v版本号.apk`
 
-当前版本：**2.2.0**（versionCode 20200），版本规则见 [VERSIONING.md](VERSIONING.md)。
+当前版本：**2.2.1**（versionCode 20201），版本规则见 [VERSIONING.md](VERSIONING.md)。
 
 ## 功能
 
@@ -40,7 +41,7 @@
 - **MINOR**：新增用户可见功能，清零 PATCH；
 - **PATCH**：只修 Bug/文案/样式。
 
-`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.2.0 = 20200。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.2.1 = 20201。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -68,11 +69,11 @@
 
 两种方式：
 
-1. 直接下载仓库里的安装包：**[`dist/chaoxing-board-v2.2.0.apk`](dist/chaoxing-board-v2.2.0.apk)**（2.2.0 正式签名）
+1. 直接下载仓库里的安装包：**[`dist/xxtT-v2.2.1.apk`](dist/xxtT-v2.2.1.apk)**（2.2.1 正式签名）
 2. 到 [Releases](../../releases) 页面下载
 
-> **2.0.0 起使用新的正式签名 key，2.1.0 / 2.2.0 沿用同一把 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次；之后 2.0.x / 2.1.x / 2.2.x 都可以直接覆盖安装且保留数据。卸载会清掉登录，重新登录即可。
-> 开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.2.0-debug`）。正式发布包用 `scripts/release.ps1` 生成。
+> **2.0.0 起使用新的正式签名 key，2.1.0 / 2.2.x 沿用同一把 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次；之后 2.0.x / 2.1.x / 2.2.x 都可以直接覆盖安装且保留数据。卸载会清掉登录，重新登录即可。
+> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.2.1.apk`）。开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.2.1-debug`）。正式发布包用 `scripts/release.ps1` 生成。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
