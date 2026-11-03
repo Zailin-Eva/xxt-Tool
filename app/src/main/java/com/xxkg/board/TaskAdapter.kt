@@ -63,6 +63,7 @@ class TaskAdapter(
                 holder.right.setTextColor(TimeFmt.C_SOON)
                 val days = TimeFmt.daysAgo(now, t.stageTime)
                 holder.sub.text = when {
+                    t.statusText.startsWith("已提交") -> "$course · 已提交（时间未知）"
                     days > 0 -> "$course · 已交 $days 天"
                     days == 0 -> "$course · 今天交的"
                     else -> course

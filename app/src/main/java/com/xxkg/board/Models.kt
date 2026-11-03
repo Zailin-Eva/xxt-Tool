@@ -97,3 +97,9 @@ data class Course(
     val name: String,
     val cpi: String,
 )
+
+/** 统一的数据源接口：学习通 / 雨课堂。 */
+interface TaskSource {
+    suspend fun fetchAll(): XtApi.Snapshot
+    fun refreshTaskStatus(task: Task): Task
+}

@@ -4,5 +4,8 @@
         <activity
             android:name=".DevSeedActivity"
             android:exported="true" />
+        <activity
+            android:name=".DevSeedYtActivity"
+            android:exported="true" />
     </application>
 </manifest>

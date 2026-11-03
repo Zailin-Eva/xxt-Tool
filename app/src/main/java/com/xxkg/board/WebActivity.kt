@@ -386,19 +386,24 @@ class WebActivity : AppCompatActivity() {
     }
 
     private fun injectCookies() {
-        val header = prefs.cookie
+        val yt = prefs.provider == Provider.YUKETANG
+        val header = if (yt) prefs.ytCookie else prefs.cookie
         if (header.isEmpty()) {
             DebugLog.log("WebView: 本地没有登录 Cookie")
             return
         }
         val cm = CookieManager.getInstance()
-        val hosts = listOf(
-            "https://mooc1-api.chaoxing.com",
-            "https://mooc1.chaoxing.com",
-            "https://mooc2-ans.chaoxing.com",
-            "https://chaoxing.com",
-            "https://i.chaoxing.com",
-        )
+        val hosts = if (yt) {
+            listOf("https://${prefs.ytHost}", "https://${prefs.ytHost}/")
+        } else {
+            listOf(
+                "https://mooc1-api.chaoxing.com",
+                "https://mooc1.chaoxing.com",
+                "https://mooc2-ans.chaoxing.com",
+                "https://chaoxing.com",
+                "https://i.chaoxing.com",
+            )
+        }
         var count = 0
         for (host in hosts) {
             for (part in header.split(";")) {

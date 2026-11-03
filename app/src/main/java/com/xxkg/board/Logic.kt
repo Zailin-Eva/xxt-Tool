@@ -229,10 +229,16 @@ object Categorizer {
         }
 
         val todoSorted = when (sortMode) {
-            1 -> todo.sortedWith(compareBy<Task> { if (it.endTime == 0L) Long.MIN_VALUE else -it.endTime })
+            1 -> todo.sortedWith(
+                compareBy<Task> { if (it.endTime == 0L) Long.MIN_VALUE else -it.endTime }
+                    .thenBy { it.type.ordinal }
+            )
             2 -> todo.sortedWith(compareBy<Task> { it.courseName }.thenBy { it.endTime })
             3 -> todo.sortedWith(compareBy<Task> { it.type.ordinal }.thenBy { it.endTime })
-            else -> todo.sortedWith(compareBy<Task> { if (it.endTime == 0L) Long.MAX_VALUE else it.endTime })
+            else -> todo.sortedWith(
+                compareBy<Task> { if (it.endTime == 0L) Long.MAX_VALUE else it.endTime }
+                    .thenBy { it.type.ordinal }
+            )
         }
 
         return Buckets(

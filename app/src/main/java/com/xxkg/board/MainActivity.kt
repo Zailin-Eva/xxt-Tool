@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var prefs: Prefs
-    private lateinit var api: XtApi
+    private lateinit var api: TaskSource
     private lateinit var adapter: TaskAdapter
 
     private lateinit var tvNearestTitle: TextView
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = Prefs.get(this)
-        api = XtApi(prefs)
+        api = if (prefs.provider == Provider.YUKETANG) YtApi(prefs) else XtApi(prefs)
         setContentView(R.layout.activity_main)
 
         tvNearestTitle = findViewById(R.id.tvNearestTitle)
@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        all = Task.decode(prefs.cache)
+        all = Task.decode(prefs.activeCache)
         render()
 
         if (!prefs.isLoggedIn) {
@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // 从学习通页面/退出登录回来时，本地缓存可能已变化，重新读一遍再渲染
-        all = Task.decode(prefs.cache)
+        all = Task.decode(prefs.activeCache)
         render()
         // 从别处登录成功回来（缓存为空且从未同步过）时自动抓一次
         if (prefs.isLoggedIn && all.isEmpty() && prefs.lastSync == 0L && !refreshing) {
@@ -150,6 +150,10 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_LOGIN && resultCode == Activity.RESULT_OK) {
             prefs.loggedOut = false
+            // 登录时可能切换了数据源，重新绑定
+            api = if (prefs.provider == Provider.YUKETANG) YtApi(prefs) else XtApi(prefs)
+            all = Task.decode(prefs.activeCache)
+            render()
             refresh()
         } else if (requestCode == REQ_TASK) {
             // 从学习通页面回到列表：这条作业可能刚交过，轻量刷新它的状态
@@ -186,7 +190,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             tvNearestTitle.text = first.title
             val r = TimeFmt.remain(now, first.endTime, prefs.greenDays, prefs.orangeDays)
-            tvCountdown.text = TimeFmt.bigCountdown(now, first.endTime)
+            tvCountdown.text = if (first.endTime > 0) {
+                TimeFmt.bigCountdown(now, first.endTime)
+            } else {
+                "无截止"
+            }
             tvCountdown.setTextColor(r.color)
             val soon = buckets.todo.count { it.endTime > now && it.endTime - now <= TimeFmt.DAY }
             val week = buckets.todo.count { it.endTime > now && it.endTime - now <= 7 * TimeFmt.DAY }
@@ -197,7 +205,7 @@ class MainActivity : AppCompatActivity() {
                     append(" · ")
                 }
                 append("截止 ")
-                append(TimeFmt.dateTime(first.endTime))
+                append(if (first.endTime > 0) TimeFmt.dateTime(first.endTime) else "未知")
                 if (soon > 0) {
                     append(" · 今天 ")
                     append(soon)
@@ -252,7 +260,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 val snap = api.fetchAll()
                 all = snap.tasks
-                prefs.cache = Task.encode(all)
+                prefs.activeCache = Task.encode(all)
                 prefs.lastSync = System.currentTimeMillis()
                 if (snap.tasks.isEmpty() && snap.errors.isNotEmpty()) {
                     toast("抓取失败：" + snap.errors.first())
@@ -278,10 +286,17 @@ class MainActivity : AppCompatActivity() {
         lastOpenedTaskKey = t.key
         val i = Intent(this, WebActivity::class.java)
         i.putExtra(WebActivity.EXTRA_URL, t.url)
-        i.putExtra(WebActivity.EXTRA_REFERER, XtApi.WEB + "/")
+        i.putExtra(WebActivity.EXTRA_REFERER, refererFor(prefs, t))
         i.putExtra(WebActivity.EXTRA_TITLE, t.title)
         startActivityForResult(i, REQ_TASK)
     }
+
+    private fun refererFor(prefs: Prefs, t: Task): String =
+        if (prefs.provider == Provider.YUKETANG) {
+            "https://${prefs.ytHost}/"
+        } else {
+            XtApi.WEB + "/"
+        }
 
     /** 从作业页回来：只重拉这条所在课程的列表，更新它的状态/分数，避免整页重刷。 */
     private fun refreshTaskStatus(key: String) {
@@ -294,7 +309,7 @@ class MainActivity : AppCompatActivity() {
                 val index = list.indexOfFirst { it.key == updated.key }
                 if (index >= 0) list[index] = updated
                 all = list
-                prefs.cache = Task.encode(all)
+                prefs.activeCache = Task.encode(all)
                 render()
             } catch (e: Exception) {
                 // 状态刷新失败不打扰用户，下次下拉刷新会补上

@@ -41,6 +41,30 @@ object Cookies {
     fun header(map: Map<String, String>): String =
         map.entries.joinToString("; ") { "${it.key}=${it.value}" }
 
+    /** 收割指定域名的 Cookie（雨课堂等单域名站点）。 */
+    fun harvestFor(host: String): Map<String, String> {
+        val url = if (host.startsWith("http")) host else "https://$host"
+        val raw = try {
+            CookieManager.getInstance().getCookie(url)
+        } catch (e: Exception) {
+            null
+        } ?: return emptyMap()
+        val map = LinkedHashMap<String, String>()
+        for (part in raw.split(";")) {
+            val idx = part.indexOf('=')
+            if (idx > 0) {
+                val k = part.substring(0, idx).trim()
+                val v = part.substring(idx + 1).trim()
+                if (k.isNotEmpty()) map[k] = v
+            }
+        }
+        return map
+    }
+
+    /** 雨课堂登录成功的标志（Django 风格的 session）。 */
+    fun looksYtLoggedIn(map: Map<String, String>): Boolean =
+        map.containsKey("sessionid") || map.containsKey("session_id")
+
     /** 判定是否已经登录成功 */
     fun looksLoggedIn(map: Map<String, String>): Boolean =
         map.containsKey("_uid") || map.containsKey("_d") || map.containsKey("uf")

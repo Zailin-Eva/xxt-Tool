@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
  *  考试详情  /exam/phone/task-exam?...  → 提交时间、成绩
  * 官方聚合接口 gas/taskmsg 对第三方 UA 一律 403，故不再依赖。
  */
-class XtApi(private val prefs: Prefs) {
+class XtApi(private val prefs: Prefs) : TaskSource {
 
     companion object {
         const val MOOC = "https://mooc1-api.chaoxing.com"
@@ -204,7 +204,7 @@ class XtApi(private val prefs: Prefs) {
     }
 
     /** 只重新拉当前课程列表，更新这一条的状态（提交后变待批阅）。 */
-    fun refreshTaskStatus(task: Task): Task {
+    override fun refreshTaskStatus(task: Task): Task {
         if (task.courseId.isEmpty() || task.classId.isEmpty()) return task
         val list = try {
             when (task.type) {
@@ -254,7 +254,7 @@ class XtApi(private val prefs: Prefs) {
 
     data class Snapshot(val tasks: List<Task>, val errors: List<String>)
 
-    suspend fun fetchAll(): Snapshot = withContext(Dispatchers.IO) {
+    override suspend fun fetchAll(): Snapshot = withContext(Dispatchers.IO) {
         val errors = Collections.synchronizedList(ArrayList<String>())
         val started = System.currentTimeMillis()
 

@@ -4,6 +4,15 @@ import android.content.Context
 import org.json.JSONObject
 import java.util.UUID
 
+/** 数据源：学习通 / 雨课堂。 */
+enum class Provider {
+    CHAOXING,
+    YUKETANG;
+
+    val label: String
+        get() = if (this == CHAOXING) "学习通" else "雨课堂"
+}
+
 /** 全部本地状态：登录 Cookie、设置、缓存、手动删除记录。 */
 class Prefs(ctx: Context) {
     private val sp = ctx.applicationContext.getSharedPreferences("board", Context.MODE_PRIVATE)
@@ -14,6 +23,17 @@ class Prefs(ctx: Context) {
     private fun putI(k: String, v: Int) = sp.edit().putInt(k, v).apply()
     private fun l(k: String, d: Long) = sp.getLong(k, d)
     private fun putL(k: String, v: Long) = sp.edit().putLong(k, v).apply()
+
+    /** 当前使用的数据源，默认学习通。 */
+    var provider: Provider
+        get() = runCatching { Provider.valueOf(s(K_PROVIDER, Provider.CHAOXING.name)) }
+            .getOrDefault(Provider.CHAOXING)
+        set(v) = putS(K_PROVIDER, v.name)
+
+    /** 雨课堂服务器（默认长江雨课堂），只填域名。 */
+    var ytHost: String
+        get() = s(K_YT_HOST, YtApi.DEFAULT_HOST)
+        set(v) = putS(K_YT_HOST, v.trim().removePrefix("https://").removePrefix("http://").trimEnd('/'))
 
     /** 登录后的 Cookie 串（加密保存） */
     var cookie: String
@@ -32,6 +52,31 @@ class Prefs(ctx: Context) {
     var userName: String
         get() = s(K_NAME)
         set(v) = putS(K_NAME, v)
+
+    /** 雨课堂 Cookie 串（加密保存，含 sessionid / csrftoken） */
+    var ytCookie: String
+        get() = Sec.dec(s(K_YT_COOKIE))
+        set(v) = putS(K_YT_COOKIE, Sec.enc(v))
+
+    var ytUid: String
+        get() = s(K_YT_UID)
+        set(v) = putS(K_YT_UID, v)
+
+    var ytName: String
+        get() = s(K_YT_NAME)
+        set(v) = putS(K_YT_NAME, v)
+
+    /** 雨课堂最近一次抓取的原始任务 JSON */
+    var ytCache: String
+        get() = s(K_YT_CACHE)
+        set(v) = putS(K_YT_CACHE, v)
+
+    /** 当前数据源对应的任务缓存 */
+    var activeCache: String
+        get() = if (provider == Provider.YUKETANG) ytCache else cache
+        set(v) {
+            if (provider == Provider.YUKETANG) ytCache = v else cache = v
+        }
 
     /** 待批阅时间窗口 x（天） */
     var xDays: Int
@@ -73,25 +118,36 @@ class Prefs(ctx: Context) {
         set(v) = putS(K_CACHE, v)
 
     val isLoggedIn: Boolean
-        get() = cookie.isNotEmpty() && uid.isNotEmpty()
+        get() = if (provider == Provider.YUKETANG) {
+            ytCookie.isNotEmpty() && ytUid.isNotEmpty()
+        } else {
+            cookie.isNotEmpty() && uid.isNotEmpty()
+        }
 
     /** 是否主动退出过登录（区别于 Cookie 过期） */
     var loggedOut: Boolean
         get() = sp.getBoolean(K_LOGGED_OUT, false)
         set(v) = sp.edit().putBoolean(K_LOGGED_OUT, v).apply()
 
-    /** 退出登录：清账号、课程、作业缓存；保留时间窗口/排序等本机设置 */
+    /** 退出登录：清当前数据源的账号、课程、作业缓存；保留时间窗口/排序等本机设置 */
     fun clearAccount() {
-        sp.edit()
-            .remove(K_COOKIE)
-            .remove(K_UID)
-            .remove(K_PUID)
-            .remove(K_NAME)
-            .remove(K_CACHE)
+        val edit = sp.edit()
             .remove(K_STATE)
             .remove(K_DELETED)
             .remove(K_SYNC)
-            .apply()
+        if (provider == Provider.YUKETANG) {
+            edit.remove(K_YT_COOKIE)
+                .remove(K_YT_UID)
+                .remove(K_YT_NAME)
+                .remove(K_YT_CACHE)
+        } else {
+            edit.remove(K_COOKIE)
+                .remove(K_UID)
+                .remove(K_PUID)
+                .remove(K_NAME)
+                .remove(K_CACHE)
+        }
+        edit.apply()
         loggedOut = true
     }
 
@@ -159,10 +215,16 @@ class Prefs(ctx: Context) {
     }
 
     companion object {
+        private const val K_PROVIDER = "provider"
         private const val K_COOKIE = "cookie"
         private const val K_UID = "uid"
         private const val K_PUID = "puid"
         private const val K_NAME = "name"
+        private const val K_YT_HOST = "yt_host"
+        private const val K_YT_COOKIE = "yt_cookie"
+        private const val K_YT_UID = "yt_uid"
+        private const val K_YT_NAME = "yt_name"
+        private const val K_YT_CACHE = "yt_cache"
         private const val K_X = "x_days"
         private const val K_Y = "y_days"
         private const val K_GREEN_DAYS = "green_days"

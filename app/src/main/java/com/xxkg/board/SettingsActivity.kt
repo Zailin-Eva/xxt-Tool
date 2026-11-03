@@ -66,7 +66,12 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun bindState() {
         tvAccount.text = if (prefs.isLoggedIn) {
-            "已登录 · UID ${prefs.uid}"
+            if (prefs.provider == Provider.YUKETANG) {
+                "雨课堂" + (if (prefs.ytName.isNotEmpty()) " · ${prefs.ytName}" else "") +
+                    " · ${prefs.ytHost}"
+            } else {
+                "学习通 · UID ${prefs.uid}"
+            }
         } else {
             "未登录"
         }

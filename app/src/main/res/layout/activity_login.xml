@@ -13,13 +13,25 @@
         android:paddingRight="12dp">
 
         <TextView
+            android:id="@+id/tvLoginTitle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="登录学习通"
+            android:text="登录"
             android:textColor="#111111"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/btnSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="切换"
+            android:textColor="#666666"
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/btnClose"
