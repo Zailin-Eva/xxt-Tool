@@ -1,16 +1,16 @@
 # xxtT · xxt-Tool
 
-一个轻量的 Android 小工具：登录**学习通**或**雨课堂**后，把作业和考试汇总到四个栏目里，按剩余时间排好，省得每次翻五六个入口。
+一个轻量的 Android 小工具：登录**学习通**或**雨课堂**后，把作业和考试汇总到四个栏目里，按剩余时间排好，省得每次翻五六个入口；2.5.0 起再加一个本地课程表。
 
 > 中文名（仅 GitHub 展示用）：学习通小工具
 
-- 体积约 1 MB，无后台常驻、无推送、无广告
+- 体积约 1–2 MB（release），无后台常驻、无推送、无广告
 - 权限只有网络和安装更新（`REQUEST_INSTALL_PACKAGES`）
 - 支持 Android 7.0（API 24）及以上
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
 - 安装包命名统一为 `xxtT-v版本号.apk`；GitHub Release 标题统一为 `v版本号`
 
-当前版本：**2.4.0**（versionCode 20400），版本规则见 [VERSIONING.md](VERSIONING.md)。
+当前版本：**2.5.1**（versionCode 20501），版本规则见 [VERSIONING.md](VERSIONING.md)。
 
 ## 功能
 
@@ -36,6 +36,23 @@
 - 支持学习通 / 雨课堂双账号同时登录，任务合并到同一套四栏，条目和顶部卡片都标注「学习通 / 雨课堂」；「个人」页可分别登录、分别退出，底部「退出登录」同时退出两个账号
 - 雨课堂登录默认 `https://www.yuketang.cn/web`，服务器跟随网页里用户的选择，不再单独设「更换服务器」
 
+## 课程表（2.5.0+）
+
+底部「课表」进入，和作业看板相互独立：
+
+- **默认 13 节作息**：08:00–21:00，上午/中午/下午/晚上分段；可在「课表设置 → 节次与时间」逐节改，或按“每节时长 + 课间”批量生成。
+- **周视图**：周一至周日 × 节次，左侧固定显示节次和起止时间；顶部显示第 N 周、月份、日期，今天高亮。
+- **周次**：以「第 1 周周一」为锚点；可手动选日期，也可输入“本周是第几周”反推；默认预置 2026-09-07，可随时校正。
+- **课程**：同一门课可加多个时间段，分别设置周次、星期、节次、校区、地点、教师；支持单双周、跳周、前后几周换教室/换教师/没课。
+- **快速加课**：点空白小方格第一次出现加号，再点同一格打开快速添加；自动带入星期/节次，保存后直接落格。
+- **课程块**：显示课程名称、地点、教师；名称字号最大，整体已放大。
+- **详情**：点课程弹出多张时间段卡，当前周在前，非本周黑色药丸；每段可编辑。
+- **未排课**：没有时间段的课程单独列出，点进去补时间段。
+- **外观**：暖米白 + 陶土强调色；5 个强调色可切换；课程之间不做颜色区分；首页/个人页也已统一到这个风格。
+- **备份**：「课表设置 → 导出课表 JSON」可备份/换机；导入会覆盖当前课表。
+
+> 2.5.1 只做手动维护 + JSON 备份。Excel/CSV/PDF 导入在 2.6.0，教务系统网页抓取在 2.7.0。
+
 ## 版本规则
 
 采用 `MAJOR.MINOR.PATCH`，应用名始终不变：
@@ -44,7 +61,7 @@
 - **MINOR**：新增用户可见功能，清零 PATCH；
 - **PATCH**：只修 Bug/文案/样式。
 
-`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.4.0 = 20400。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.5.1 = 20501。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -92,11 +109,10 @@
 
 两种方式：
 
-1. 直接下载仓库里的安装包：**[`dist/xxtT-v2.4.0.apk`](dist/xxtT-v2.4.0.apk)**（2.4.0 正式签名）
-2. 到 [Releases](../../releases) 页面下载
+1. **正式 2.5.1 包**：**[`dist/xxtT-v2.5.1.apk`](dist/xxtT-v2.5.1.apk)**（release 签名，与 2.1.x–2.4.x 同一把 key）。可直接覆盖 2.4.0 安装，登录/缓存保留。
+2. **开发调试包**：本地运行 `scripts/build.ps1` 生成 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.5.1-debug`，debug 签名）。debug 与正式包签名不同，**不能覆盖正式包**；测试请用模拟器或先卸载。
 
-> **2.0.0 起使用新的正式签名 key，2.1.x / 2.2.x / 2.3.x / 2.4.x 沿用同一把 key。** 如果手机上装的是 1.0.0 / 1.0-debug / 1.1.0-debug，需要先卸载旧版一次；之后 2.0.x / 2.1.x / 2.2.x / 2.3.x / 2.4.x 都可以直接覆盖安装且保留数据。卸载会清掉登录，重新登录即可。
-> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.4.0.apk`）。开发调试包仍是 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.4.0-debug`）。正式发布包用 `scripts/release.ps1` 生成。
+> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.5.1.apk`）。正式发布包用 `scripts/release.ps1` 生成；`keystore.properties` 与 `signing/*.jks` 不入库。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
@@ -149,9 +165,23 @@ app/src/main/java/com/xxkg/board/
 ├─ Models.kt            Task / Course
 ├─ Prefs.kt             本地存储
 ├─ Sec.kt               AES-GCM（Android Keystore）
-└─ Cookies.kt           WebView Cookie 收割
+├─ Cookies.kt           WebView Cookie 收割
+│
+├─ TimetableActivity.kt 课表主页面（周切换 / 详情 / 未排课）
+├─ TimetableView.kt      课表网格自绘（课程块 / 今天 / 当前时间线）
+├─ TimetableHeaderView.kt 月份 + 星期/日期
+├─ TimetableModels.kt    课表数据模型 + JSON
+├─ TimetableLogic.kt     周次、日期、节次、文案
+├─ TimetableStore.kt     timetable.json 读写 / 备份
+├─ CourseEditActivity.kt 课程信息 + 时间段列表
+├─ SegmentEditActivity.kt 单个时间段编辑
+├─ PeriodSettingsActivity.kt 节次与时间
+├─ TermSettingsActivity.kt 学期与周次
+├─ TimetableSettingsActivity.kt 课表设置
+├─ WeekChipsView.kt      周次选择小方块
+└─ Palette.kt            课表新 UI 配色
 
-app/src/test/           单元测试（规则引擎 + 解析器 + 版本号）
+app/src/test/           单元测试（规则引擎 + 解析器 + 课表周次 + 版本号）
 app/src/debug/          仅调试包的登录态注入入口（不进正式包）
 scripts/                环境准备、编译、接口探测脚本
 VERSIONING.md           版本规则
@@ -162,10 +192,12 @@ RELEASE_NOTES.md        当前 Release 说明
 ## 说明与限制
 
 - 仅供个人学习、自用。不隶属超星/学习通官方，也未获得其授权；请遵守学校与平台的使用条款，不要用于刷课、代做等违规用途。
-- 只读展示，不会替你做作业、交作业。
+- 作业看板只读展示，不会替你做作业、交作业。
+- 课程表 2.5.1 只做本机手动维护 + JSON 备份；Excel/CSV/PDF 导入在 2.6.0，教务系统网页抓取在 2.7.0。
 - 学习通改版会导致页面选择器失效，需要跟着改；`个人 → 抓取日志` 能看到是哪一步失败。
 - 截止时间需要逐条打开作业详情页（只打开未交/过期/近期完成的，通常 20–30 个请求），网络慢时会多等几秒。
 
 ## License
 
 [MIT](LICENSE)
+

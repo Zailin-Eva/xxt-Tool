@@ -103,6 +103,16 @@ class Prefs(ctx: Context) {
         get() = i(K_SORT, 0)
         set(v) = putI(K_SORT, v)
 
+    /** 课程表强调色 key：clay / sage / ink / teal / graphite */
+    var accent: String
+        get() = s(K_ACCENT, "clay")
+        set(v) = putS(K_ACCENT, v)
+
+    /** 课程表是否显示非本周灰色课程 */
+    var showNonCurrentWeek: Boolean
+        get() = sp.getBoolean(K_SHOW_NONCURRENT, true)
+        set(v) = sp.edit().putBoolean(K_SHOW_NONCURRENT, v).apply()
+
     var lastSync: Long
         get() = l(K_SYNC, 0L)
         set(v) = putL(K_SYNC, v)
@@ -255,6 +265,8 @@ class Prefs(ctx: Context) {
         private const val K_GREEN_DAYS = "green_days"
         private const val K_ORANGE_DAYS = "orange_days"
         private const val K_SORT = "sort"
+        private const val K_ACCENT = "tt_accent"
+        private const val K_SHOW_NONCURRENT = "tt_show_noncurrent"
         private const val K_SYNC = "last_sync"
         private const val K_UPDATE_CHECK = "last_update_check"
         private const val K_CACHE = "cache"

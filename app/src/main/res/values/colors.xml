@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tt_bg">#F7F5EF</color>
+    <color name="tt_surface">#FFFFFF</color>
+    <color name="tt_surface_alt">#EFEAE0</color>
+    <color name="tt_ink">#141413</color>
+    <color name="tt_muted">#6E6960</color>
+    <color name="tt_muted2">#A39D92</color>
+    <color name="tt_line">#E5E0D5</color>
+    <color name="tt_accent">#C96442</color>
+    <color name="tt_accent_soft">#F3E3DA</color>
+    <color name="tt_noncurrent_bg">#E9E4D9</color>
+    <color name="tt_noncurrent_ink">#9B958A</color>
+    <color name="tt_danger">#B4483A</color>
+</resources>

@@ -107,6 +107,9 @@ class MainActivity : AppCompatActivity() {
             list.scrollToPosition(0)
             render()
         }
+        findViewById<TextView>(R.id.btnTimetable).setOnClickListener {
+            startActivity(Intent(this, TimetableActivity::class.java))
+        }
         findViewById<TextView>(R.id.btnMe).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
@@ -169,9 +172,9 @@ class MainActivity : AppCompatActivity() {
         for (i in tabs.indices) tabs[i].isSelected = (i == tab)
 
         tvSort.text = "排序：" + Categorizer.SORT_LABELS[prefs.sortMode]
-        tvSort.setTextColor(if (tab == 0) 0xFF333333.toInt() else 0xFFBBBBBB.toInt())
+        tvSort.setTextColor(if (tab == 0) Palette.INK else Palette.MUTED2)
         tvRange.text = "待批阅 ${prefs.xDays} 天 / 已完成 ${prefs.yDays} 天"
-        tvRange.setTextColor(if (tab == 1 || tab == 2) 0xFF333333.toInt() else 0xFFBBBBBB.toInt())
+        tvRange.setTextColor(if (tab == 1 || tab == 2) Palette.INK else Palette.MUTED2)
 
         // 顶部卡片
         // 顶部卡片始终取真正最近截止的一条，不受当前排序方式影响

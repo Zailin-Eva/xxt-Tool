@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tt_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <!-- 顶栏：周次 + 今天/设置/添加 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingTop="2dp"
+        android:paddingRight="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btnPrevWeek"
+                    android:layout_width="26dp"
+                    android:layout_height="34dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="上一周"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_chevron_left"
+                    android:tint="@color/tt_ink" />
+
+                <TextView
+                    android:id="@+id/tvWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="第 9 周"
+                    android:textColor="@color/tt_ink"
+                    android:textSize="28sp" />
+
+                <ImageButton
+                    android:id="@+id/btnWeekPicker"
+                    android:layout_width="24dp"
+                    android:layout_height="30dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="选择周次"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_chevron_down"
+                    android:tint="@color/tt_ink" />
+
+                <ImageButton
+                    android:id="@+id/btnNextWeek"
+                    android:layout_width="26dp"
+                    android:layout_height="34dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="下一周"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="@color/tt_ink" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTerm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="2026-2027 第1学期"
+                android:textColor="@color/tt_muted"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnToday"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:background="@drawable/bg_pill"
+            android:gravity="center"
+            android:paddingLeft="11dp"
+            android:paddingRight="11dp"
+            android:text="本周"
+            android:textColor="@color/tt_ink"
+            android:textSize="11sp" />
+
+        <ImageButton
+            android:id="@+id/btnTimetableSettings"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="课表设置"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_settings"
+            android:tint="@color/tt_ink" />
+
+        <ImageButton
+            android:id="@+id/btnAddCourse"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_plus"
+            android:contentDescription="添加课程"
+            android:padding="9dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_plus"
+            android:tint="@color/tt_surface" />
+    </LinearLayout>
+
+    <com.xxkg.board.TimetableHeaderView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="56dp" />
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="false"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <com.xxkg.board.TimetableView
+            android:id="@+id/grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
+    <View
+        android:id="@+id/unplacedDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/tt_line"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvUnplaced"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:text=""
+        android:textColor="@color/tt_muted"
+        android:textSize="9sp"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/tt_line" />
+
+    <!-- 底栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/navHome"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@null"
+                android:contentDescription="首页"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_home"
+                android:tint="@color/tt_muted2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="首页"
+                android:textColor="@color/tt_muted2"
+                android:textSize="8sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navTimetable"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@null"
+                android:contentDescription="课表"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_calendar"
+                android:tint="@color/tt_ink" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="课表"
+                android:textColor="@color/tt_ink"
+                android:textSize="8sp" />
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/bg_nav_dot" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navMe"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="@null"
+                android:contentDescription="个人"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_settings"
+                android:tint="@color/tt_muted2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="个人"
+                android:textColor="@color/tt_muted2"
+                android:textSize="8sp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

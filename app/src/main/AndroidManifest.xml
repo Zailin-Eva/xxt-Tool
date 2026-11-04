@@ -17,6 +17,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:theme="@style/Theme.Board.Timetable"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +32,8 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -48,6 +50,40 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".TimetableActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <activity
+            android:name=".CourseEditActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".SegmentEditActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".PeriodSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable" />
+
+        <activity
+            android:name=".TermSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".TimetableSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable" />
     </application>
 
 </manifest>

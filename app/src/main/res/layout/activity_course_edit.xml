@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tt_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/TtTopBar">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="返回"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_back"
+            android:tint="@color/tt_ink" />
+
+        <TextView
+            style="@style/TtTitle"
+            android:layout_marginStart="6dp"
+            android:text="课程信息" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:paddingLeft="12dp"
+            android:paddingRight="4dp"
+            android:text="保存"
+            android:textColor="@color/tt_accent"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="18dp"
+            android:paddingTop="4dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="40dp">
+
+            <TextView style="@style/TtLabel" android:text="课程名称" />
+
+            <EditText
+                android:id="@+id/etName"
+                style="@style/TtField"
+                android:hint="例如：大学物理"
+                android:textColorHint="@color/tt_muted2" />
+
+            <TextView style="@style/TtLabel" android:text="教师" />
+
+            <EditText
+                android:id="@+id/etTeacher"
+                style="@style/TtField"
+                android:hint="例如：王悦"
+                android:textColorHint="@color/tt_muted2" />
+
+            <TextView style="@style/TtLabel" android:text="学分（可选）" />
+
+            <EditText
+                android:id="@+id/etCredits"
+                style="@style/TtField"
+                android:hint="例如：3.0"
+                android:inputType="numberDecimal"
+                android:textColorHint="@color/tt_muted2" />
+
+            <TextView style="@style/TtLabel" android:text="备注（可选）" />
+
+            <EditText
+                android:id="@+id/etNote"
+                style="@style/TtFieldMultiline"
+                android:hint="例如：实验课、考试安排等"
+                android:textColorHint="@color/tt_muted2" />
+
+            <LinearLayout
+                android:id="@+id/quickBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView style="@style/TtSection" android:text="快速添加" />
+
+                <TextView
+                    android:id="@+id/tvQuickTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text=""
+                    android:textColor="@color/tt_ink"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView style="@style/TtLabel" android:text="校区（可选）" />
+
+                <EditText
+                    android:id="@+id/etQuickCampus"
+                    style="@style/TtField"
+                    android:hint="例如：沙河校区"
+                    android:textColorHint="@color/tt_muted2" />
+
+                <TextView style="@style/TtLabel" android:text="地点" />
+
+                <EditText
+                    android:id="@+id/etQuickLocation"
+                    style="@style/TtField"
+                    android:hint="例如：沙河二教306"
+                    android:textColorHint="@color/tt_muted2" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSegmentSection"
+                style="@style/TtSection"
+                android:text="时间段" />
+
+            <TextView
+                android:id="@+id/tvSegmentHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="同一门课可以添加多个时间段，分别设置周次、星期和地点。"
+                android:textColor="@color/tt_muted2"
+                android:textSize="10sp" />
+
+            <LinearLayout
+                android:id="@+id/segmentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/btnAddSegment"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_pill"
+                android:gravity="center"
+                android:text="＋ 添加时间段"
+                android:textColor="@color/tt_ink"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/btnDeleteCourse"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="22dp"
+                android:gravity="center"
+                android:text="删除课程"
+                android:textColor="@color/tt_danger"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

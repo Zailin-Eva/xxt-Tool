@@ -54,6 +54,9 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.tvVersion).text = "xxtT v" + versionName() + " · 仅本机使用"
         findViewById<TextView>(R.id.btnLog).setOnClickListener { showLog() }
+        findViewById<TextView>(R.id.btnTimetableSettings).setOnClickListener {
+            startActivity(Intent(this, TimetableSettingsActivity::class.java))
+        }
         btnRestore.setOnClickListener { confirmRestore() }
         btnLogout.setOnClickListener { confirmLogoutAll() }
         btnCx.setOnClickListener {

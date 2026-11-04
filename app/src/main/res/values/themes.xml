@@ -9,4 +9,72 @@
         <item name="colorAccent">#111111</item>
         <item name="android:textColorPrimary">#111111</item>
     </style>
+
+    <style name="Theme.Board.Timetable" parent="Theme.Board">
+        <item name="android:windowBackground">@color/tt_bg</item>
+        <item name="android:statusBarColor">@color/tt_bg</item>
+        <item name="android:navigationBarColor">@color/tt_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="colorAccent">@color/tt_accent</item>
+        <item name="android:textColorPrimary">@color/tt_ink</item>
+    </style>
+
+    <style name="TtLabel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:textColor">@color/tt_muted</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="TtField">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">46dp</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:textColor">@color/tt_ink</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="TtFieldMultiline">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">96dp</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textColor">@color/tt_ink</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">top</item>
+    </style>
+
+    <style name="TtTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:fontFamily">serif</item>
+        <item name="android:textColor">@color/tt_ink</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TtTopBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">54dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
+    <style name="TtSection">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">22dp</item>
+        <item name="android:textColor">@color/tt_muted2</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
 </resources>

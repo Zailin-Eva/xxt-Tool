@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@color/tt_bg"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="54dp"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp">
+        android:paddingLeft="10dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/btnBack"
@@ -19,18 +19,19 @@
             android:gravity="center_vertical"
             android:paddingLeft="4dp"
             android:paddingRight="12dp"
-            android:text="返回"
-            android:textColor="#666666"
-            android:textSize="13sp" />
+            android:text="‹ 返回"
+            android:textColor="@color/tt_muted"
+            android:textSize="12sp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:fontFamily="serif"
             android:gravity="center_vertical"
             android:text="个人"
-            android:textColor="#111111"
-            android:textSize="16sp" />
+            android:textColor="@color/tt_ink"
+            android:textSize="20sp" />
     </LinearLayout>
 
     <ScrollView
@@ -51,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/box"
+                android:background="@drawable/bg_card"
                 android:orientation="vertical"
                 android:padding="12dp">
 
@@ -59,7 +60,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="账号"
-                    android:textColor="#666666"
+                    android:textColor="@color/tt_muted"
                     android:textSize="11sp" />
 
                 <LinearLayout
@@ -79,7 +80,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="学习通"
-                            android:textColor="#666666"
+                            android:textColor="@color/tt_muted"
                             android:textSize="11sp" />
 
                         <TextView
@@ -88,7 +89,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="未登录"
-                            android:textColor="#111111"
+                            android:textColor="@color/tt_ink"
                             android:textSize="14sp" />
                     </LinearLayout>
 
@@ -96,12 +97,12 @@
                         android:id="@+id/btnCx"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
-                        android:background="@drawable/box"
+                        android:background="@drawable/bg_card"
                         android:gravity="center"
                         android:paddingLeft="14dp"
                         android:paddingRight="14dp"
                         android:text="登录"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -110,7 +111,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/tt_line" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -128,7 +129,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="雨课堂"
-                            android:textColor="#666666"
+                            android:textColor="@color/tt_muted"
                             android:textSize="11sp" />
 
                         <TextView
@@ -137,7 +138,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="未登录"
-                            android:textColor="#111111"
+                            android:textColor="@color/tt_ink"
                             android:textSize="14sp" />
                     </LinearLayout>
 
@@ -145,12 +146,12 @@
                         android:id="@+id/btnYt"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
-                        android:background="@drawable/box"
+                        android:background="@drawable/bg_card"
                         android:gravity="center"
                         android:paddingLeft="14dp"
                         android:paddingRight="14dp"
                         android:text="登录"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -160,7 +161,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text=""
-                    android:textColor="#888888"
+                    android:textColor="@color/tt_muted"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -169,7 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/box"
+                android:background="@drawable/bg_card"
                 android:orientation="vertical"
                 android:padding="12dp">
 
@@ -177,7 +178,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="时间窗口"
-                    android:textColor="#666666"
+                    android:textColor="@color/tt_muted"
                     android:textSize="11sp" />
 
                 <LinearLayout
@@ -192,20 +193,20 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="待批阅只显示最近提交的"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/btnX"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/box"
+                        android:background="@drawable/bg_card"
                         android:paddingLeft="12dp"
                         android:paddingTop="5dp"
                         android:paddingRight="12dp"
                         android:paddingBottom="5dp"
                         android:text="7 天"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -221,20 +222,20 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="已完成保留"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/btnY"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/box"
+                        android:background="@drawable/bg_card"
                         android:paddingLeft="12dp"
                         android:paddingTop="5dp"
                         android:paddingRight="12dp"
                         android:paddingBottom="5dp"
                         android:text="7 天"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -243,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="说明：待批阅超过上面天数后移入「已完成」，并在「已完成」中再保留下面天数后自动隐藏。"
-                    android:textColor="#999999"
+                    android:textColor="@color/tt_muted2"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -252,7 +253,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/box"
+                android:background="@drawable/bg_card"
                 android:orientation="vertical"
                 android:padding="12dp">
 
@@ -260,7 +261,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="颜色提醒"
-                    android:textColor="#666666"
+                    android:textColor="@color/tt_muted"
                     android:textSize="11sp" />
 
                 <LinearLayout
@@ -282,13 +283,13 @@
                         android:id="@+id/btnGreen"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/box"
+                        android:background="@drawable/bg_card"
                         android:paddingLeft="12dp"
                         android:paddingTop="5dp"
                         android:paddingRight="12dp"
                         android:paddingBottom="5dp"
                         android:text="5 天"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -311,13 +312,13 @@
                         android:id="@+id/btnOrange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/box"
+                        android:background="@drawable/bg_card"
                         android:paddingLeft="12dp"
                         android:paddingTop="5dp"
                         android:paddingRight="12dp"
                         android:paddingBottom="5dp"
                         android:text="1 天"
-                        android:textColor="#111111"
+                        android:textColor="@color/tt_ink"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -326,7 +327,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="说明：剩余时间 ≥ 绿色节点显示绿色，≥ 橙色节点显示橙色，低于橙色节点显示红色；默认 5/1，即不足 24 小时为红色。"
-                    android:textColor="#999999"
+                    android:textColor="@color/tt_muted2"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -335,9 +336,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/box"
+                android:background="@drawable/bg_card"
                 android:orientation="vertical"
                 android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/btnTimetableSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:gravity="center_vertical"
+                    android:text="课程表设置"
+                    android:textColor="@color/tt_ink"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/tt_line" />
 
                 <TextView
                     android:id="@+id/btnUpdate"
@@ -345,13 +360,13 @@
                     android:layout_height="40dp"
                     android:gravity="center_vertical"
                     android:text="检查更新"
-                    android:textColor="#111111"
+                    android:textColor="@color/tt_ink"
                     android:textSize="13sp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/tt_line" />
 
                 <TextView
                     android:id="@+id/btnLog"
@@ -359,13 +374,13 @@
                     android:layout_height="40dp"
                     android:gravity="center_vertical"
                     android:text="抓取日志（排查问题用）"
-                    android:textColor="#111111"
+                    android:textColor="@color/tt_ink"
                     android:textSize="13sp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/tt_line" />
 
                 <TextView
                     android:id="@+id/btnRestore"
@@ -373,13 +388,13 @@
                     android:layout_height="40dp"
                     android:gravity="center_vertical"
                     android:text="恢复被清理的条目"
-                    android:textColor="#111111"
+                    android:textColor="@color/tt_ink"
                     android:textSize="13sp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/tt_line" />
 
                 <TextView
                     android:id="@+id/btnLogout"
@@ -387,13 +402,13 @@
                     android:layout_height="40dp"
                     android:gravity="center_vertical"
                     android:text="退出登录"
-                    android:textColor="#D0021B"
+                    android:textColor="@color/tt_danger"
                     android:textSize="13sp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/tt_line" />
 
                 <TextView
                     android:id="@+id/tvVersion"
@@ -401,9 +416,10 @@
                     android:layout_height="40dp"
                     android:gravity="center_vertical"
                     android:text="版本"
-                    android:textColor="#999999"
+                    android:textColor="@color/tt_muted2"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
+

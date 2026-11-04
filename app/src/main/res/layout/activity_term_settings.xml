@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tt_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/TtTopBar">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="返回"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_back"
+            android:tint="@color/tt_ink" />
+
+        <TextView
+            style="@style/TtTitle"
+            android:layout_marginStart="6dp"
+            android:text="学期与周次" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:paddingLeft="12dp"
+            android:paddingRight="4dp"
+            android:text="保存"
+            android:textColor="@color/tt_accent"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="18dp"
+            android:paddingTop="4dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="40dp">
+
+            <TextView style="@style/TtLabel" android:text="学期名称" />
+
+            <EditText
+                android:id="@+id/etTermName"
+                style="@style/TtField"
+                android:hint="例如：2026-2027 第1学期"
+                android:textColorHint="@color/tt_muted2" />
+
+            <TextView style="@style/TtLabel" android:text="第 1 周周一" />
+
+            <TextView
+                android:id="@+id/btnWeek1"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_field"
+                android:gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="2026-09-07"
+                android:textColor="@color/tt_ink"
+                android:textSize="14sp" />
+
+            <TextView style="@style/TtLabel" android:text="总周数" />
+
+            <EditText
+                android:id="@+id/etTotalWeeks"
+                style="@style/TtField"
+                android:inputType="number"
+                android:text="20" />
+
+            <TextView style="@style/TtSection" android:text="按“本周是第几周”反推" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="如果你知道教务系统显示当前是第几周，输入后点反推，App 会自动算出第 1 周周一。"
+                android:textColor="@color/tt_muted2"
+                android:textSize="10sp"
+                android:lineSpacingExtra="2dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etCurrentWeek"
+                    style="@style/TtField"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:hint="例如：9"
+                    android:inputType="number"
+                    android:textColorHint="@color/tt_muted2" />
+
+                <TextView
+                    android:id="@+id/btnCalc"
+                    android:layout_width="76dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_pill_dark"
+                    android:gravity="center"
+                    android:text="反推"
+                    android:textColor="@color/tt_surface"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvComputed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text=""
+                android:textColor="@color/tt_muted"
+                android:textSize="11sp"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

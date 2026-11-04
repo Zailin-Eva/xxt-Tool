@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/bg_segment"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="12dp"
+    android:paddingTop="10dp"
+    android:paddingRight="8dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/tvSegmentSummary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:lineSpacingExtra="2dp"
+        android:text=""
+        android:textColor="@color/tt_ink"
+        android:textSize="11.5sp" />
+
+    <TextView
+        android:id="@+id/btnEditSegment"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:background="@drawable/bg_pill"
+        android:gravity="center"
+        android:paddingLeft="11dp"
+        android:paddingRight="11dp"
+        android:text="编辑"
+        android:textColor="@color/tt_ink"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/btnDeleteSegment"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="4dp"
+        android:text="删除"
+        android:textColor="@color/tt_danger"
+        android:textSize="10sp" />
+</LinearLayout>
