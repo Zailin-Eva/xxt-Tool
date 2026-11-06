@@ -9,3 +9,10 @@
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -dontwarn org.jsoup.**
+
+# PDFBox 的可选 JPEG2000 解码器依赖，未打包但不影响普通 PDF
+-dontwarn com.gemalto.jp2.**
+-dontwarn com.tom_roush.pdfbox.**
+# PDFBox 通过 ServiceLoader/反射加载字体与过滤器
+-keep class com.tom_roush.pdfbox.pdmodel.font.** { *; }
+-keep class com.tom_roush.pdfbox.filter.** { *; }

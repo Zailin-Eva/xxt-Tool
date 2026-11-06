@@ -56,6 +56,7 @@ class TimetableImportActivity : AppCompatActivity() {
                     "text/comma-separated-values",
                     "text/plain",
                     "text/html",
+                    "application/pdf",
                     "application/octet-stream",
                 )
             )
@@ -79,8 +80,15 @@ class TimetableImportActivity : AppCompatActivity() {
             return
         }
         val ext = name.substringAfterLast('.', "").lowercase()
+        val isPdf = ext == "pdf" || (bytes.size > 3 &&
+            bytes[0] == '%'.code.toByte() && bytes[1] == 'P'.code.toByte() &&
+            bytes[2] == 'D'.code.toByte() && bytes[3] == 'F'.code.toByte())
         val parsed = try {
             when {
+                isPdf -> {
+                    com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(applicationContext)
+                    PdfTimetableImporter.fromBytes(bytes, name)
+                }
                 ext == "xlsx" -> TimetableImporter.fromXlsx(bytes, name)
                 ext == "csv" -> TimetableImporter.fromCsv(decodeText(bytes), name)
                 ext == "html" || ext == "htm" -> TimetableImporter.fromHtml(decodeText(bytes), name)

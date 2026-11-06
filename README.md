@@ -10,7 +10,7 @@
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
 - 安装包命名统一为 `xxtT-v版本号.apk`；GitHub Release 标题统一为 `v版本号`
 
-当前版本：**2.6.0**（versionCode 20600），版本规则见 [VERSIONING.md](VERSIONING.md)。
+当前版本：**2.7.0**（versionCode 20700），版本规则见 [VERSIONING.md](VERSIONING.md)。
 
 ## 功能
 
@@ -49,10 +49,10 @@
 - **详情**：点课程弹出多张时间段卡，当前周在前，非本周黑色药丸；每段可编辑。
 - **未排课**：没有时间段的课程单独列出，点进去补时间段。
 - **外观**：暖米白 + 陶土强调色；5 个强调色可切换；课程之间不做颜色区分；首页/个人页也已统一到这个风格。
-- **导入**：支持教务系统导出的 Excel（`.xlsx`）、CSV、HTML 课表，先预览课程/时间段/周次/地点/教师和警告，再选择覆盖或合并导入。
+- **导入**：支持教务系统导出的 Excel（`.xlsx`）、CSV、HTML 和文字型 PDF 课表，先预览课程/时间段/周次/地点/教师和警告，再选择覆盖或合并导入。
 - **备份**：「课表设置 → 导出课表 JSON」可备份/换机；导入会覆盖当前课表。
 
-> PDF（文字型/扫描件 OCR）导入和教务系统网页抓取在后续版本（2.7.0）。
+> 扫描件 / 图片 OCR 和教务系统网页抓取在后续版本。
 
 ## 版本规则
 
@@ -62,7 +62,7 @@
 - **MINOR**：新增用户可见功能，清零 PATCH；
 - **PATCH**：只修 Bug/文案/样式。
 
-`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.6.0 = 20600。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.7.0 = 20700。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -110,10 +110,10 @@
 
 两种方式：
 
-1. **正式 2.6.0 包**：**[`dist/xxtT-v2.6.0.apk`](dist/xxtT-v2.6.0.apk)**（release 签名，与 2.1.x–2.5.1 同一把 key）。可直接覆盖 2.5.1 安装，登录/缓存保留。
-2. **开发调试包**：本地运行 `scripts/build.ps1` 生成 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.6.0-debug`，debug 签名）。debug 与正式包签名不同，**不能覆盖正式包**；测试请用模拟器或先卸载。
+1. **正式 2.7.0 包**：**[`dist/xxtT-v2.7.0.apk`](dist/xxtT-v2.7.0.apk)**（release 签名，与 2.1.x–2.6.0 同一把 key）。可直接覆盖 2.6.0 安装，登录/缓存保留。
+2. **开发调试包**：本地运行 `scripts/build.ps1` 生成 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.7.0-debug`，debug 签名）。debug 与正式包签名不同，**不能覆盖正式包**；测试请用模拟器或先卸载。
 
-> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.6.0.apk`）。正式发布包用 `scripts/release.ps1` 生成；`keystore.properties` 与 `signing/*.jks` 不入库。
+> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.7.0.apk`）。正式发布包用 `scripts/release.ps1` 生成；`keystore.properties` 与 `signing/*.jks` 不入库。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
@@ -194,7 +194,7 @@ RELEASE_NOTES.md        当前 Release 说明
 
 - 仅供个人学习、自用。不隶属超星/学习通官方，也未获得其授权；请遵守学校与平台的使用条款，不要用于刷课、代做等违规用途。
 - 作业看板只读展示，不会替你做作业、交作业。
-- 课程表 2.6.0 支持手动维护、JSON 备份和 Excel/CSV/HTML 导入；PDF/OCR 导入和教务系统网页抓取在后续版本（2.7.0）。
+- 课程表 2.7.0 支持手动维护、JSON 备份和 Excel/CSV/HTML/PDF（文字型）导入；扫描件 OCR 和教务系统网页抓取在后续版本。
 - 学习通改版会导致页面选择器失效，需要跟着改；`个人 → 抓取日志` 能看到是哪一步失败。
 - 截止时间需要逐条打开作业详情页（只打开未交/过期/近期完成的，通常 20–30 个请求），网络慢时会多等几秒。
 

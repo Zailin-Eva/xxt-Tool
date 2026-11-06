@@ -227,7 +227,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:gravity="center_vertical"
-                    android:text="导入 Excel / CSV / HTML 课表"
+                    android:text="导入 Excel / CSV / HTML / PDF 课表"
                     android:textColor="@color/tt_ink"
                     android:textSize="13sp" />
 

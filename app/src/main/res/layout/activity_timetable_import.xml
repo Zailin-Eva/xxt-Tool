@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="支持教务系统导出的 Excel（.xlsx）、CSV、网页（.html）。选文件后会先解析并预览，确认后再导入；覆盖或合并都可以。PDF 导入在下一阶段接入。"
+                android:text="支持教务系统导出的 Excel（.xlsx）、CSV、网页（.html）和文字型 PDF。选文件后会先解析并预览，确认后再导入；覆盖或合并都可以。"
                 android:textColor="@color/tt_muted"
                 android:textSize="10.5sp"
                 android:lineSpacingExtra="3dp" />
@@ -55,7 +55,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_pill_dark"
                 android:gravity="center"
-                android:text="选择 Excel / CSV / HTML 文件"
+                android:text="选择 Excel / CSV / HTML / PDF 文件"
                 android:textColor="@color/tt_surface"
                 android:textSize="12sp" />
 

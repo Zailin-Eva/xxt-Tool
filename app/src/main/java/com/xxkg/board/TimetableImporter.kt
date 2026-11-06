@@ -390,6 +390,13 @@ object TimetableImporter {
         return ""
     }
 
+    /** PDF 等外部解析器把时间段解析好后，统一走这里去重/建课程。 */
+    fun fromSegments(
+        label: String,
+        segments: List<ImportedSegment>,
+        warnings: MutableList<String>,
+    ): ImportResult = finish(label, segments, warnings)
+
     private fun finish(
         label: String,
         segments: List<ImportedSegment>,
