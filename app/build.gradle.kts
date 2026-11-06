@@ -13,8 +13,8 @@ android {
         applicationId = "com.xxkg.board"
         minSdk = 24
         targetSdk = 34
-        versionCode = 20501
-        versionName = "2.5.1"
+        versionCode = 20600
+        versionName = "2.6.0"
     }
 
     // 签名信息放在仓库外的 keystore.properties（已 gitignore）；
@@ -83,5 +83,6 @@ dependencies {
     // Android 的 org.json 在本地单元测试里是 stub，测试时用真实实现
     testImplementation("org.json:json:20240303")
 }
+
 
 

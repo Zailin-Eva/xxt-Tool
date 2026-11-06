@@ -58,7 +58,7 @@ class TimetableLogicTest {
     @Test
     fun `未排课数量与删除课程`() {
         val data = TimetableData()
-        val c1 = TtCourse(id = "c1", name = "大学物理")
+        val c1 = TtCourse(id = "c1", name = "高等数学")
         val c2 = TtCourse(id = "c2", name = "待安排")
         data.courses.add(c1)
         data.courses.add(c2)
@@ -69,11 +69,30 @@ class TimetableLogicTest {
                 weeks = (1..16).toMutableSet(),
             )
         )
-        data.unscheduled.add(Unscheduled(id = "u1", name = "马原实践", weeks = mutableSetOf(8, 9, 10)))
+        data.unscheduled.add(Unscheduled(id = "u1", name = "实践课程", weeks = mutableSetOf(8, 9, 10)))
         assertEquals(2, TimetableLogic.unscheduledCount(data))
         TimetableLogic.deleteCourse(data, "c1")
         assertEquals(1, data.courses.size)
         assertTrue(data.segments.isEmpty())
+    }
+
+    @Test
+    fun `时间段冲突检测`() {
+        val data = TimetableData()
+        val course = TtCourse(id = "c1", name = "高等数学")
+        data.courses.add(course)
+        data.segments.add(
+            Segment(
+                id = "s1", courseId = "c1", day = 1,
+                startPeriod = 1, endPeriod = 2,
+                weeks = (1..16).toMutableSet(),
+            )
+        )
+        assertEquals(1, TimetableLogic.conflicts(data, null, 1, 2, 3, (1..16).toSet()).size)
+        assertEquals(0, TimetableLogic.conflicts(data, null, 1, 3, 4, (1..16).toSet()).size)
+        assertEquals(0, TimetableLogic.conflicts(data, "s1", 1, 1, 2, (1..16).toSet()).size)
+        assertEquals(0, TimetableLogic.conflicts(data, null, 1, 1, 2, setOf(17)).size)
+        assertEquals(0, TimetableLogic.conflicts(data, null, 2, 1, 2, (1..16).toSet()).size)
     }
 
     @Test

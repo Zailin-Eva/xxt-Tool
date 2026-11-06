@@ -116,6 +116,16 @@ class SegmentEditActivity : AppCompatActivity() {
             return
         }
         data = TimetableStore.load(this)
+        val day = spDay.selectedItemPosition + 1
+        val conflicts = TimetableLogic.conflicts(data, segmentId, day, start, end, weeks)
+        if (conflicts.isNotEmpty()) {
+            AlertDialog.Builder(this)
+                .setTitle("时间冲突")
+                .setMessage(TimetableLogic.conflictMessage(conflicts))
+                .setPositiveButton("知道了", null)
+                .show()
+            return
+        }
         var seg = data.segments.firstOrNull { it.id == segmentId }
         if (seg == null) {
             seg = Segment(

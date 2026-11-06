@@ -1,4 +1,4 @@
-﻿# 版本规则
+# 版本规则
 
 xxtT（英文名 xxt-Tool；中文名「学习通小工具」仅用于 GitHub 展示）使用语义化版本 `MAJOR.MINOR.PATCH`，**应用显示名始终为 `xxtT`**，不随版本变化。
 
@@ -33,13 +33,14 @@ versionCode = MAJOR * 10000 + MINOR * 100 + PATCH
 | 2.4.0 | 20400 |
 | 2.5.0 | 20500 |
 | 2.5.1 | 20501 |
+| 2.6.0 | 20600 |
 
 MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
 
 ## 版本名与调试包
 
-- 正式版本名：`2.5.1`。
-- debug 包自动追加后缀：`2.5.1-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
+- 正式版本名：`2.6.0`。
+- debug 包自动追加后缀：`2.6.0-debug`（`build.gradle.kts` 的 `versionNameSuffix`）。
 - 应用显示名固定为 `xxtT`；「个人」页底部显示 `xxtT v版本号`。
 
 ## 命名规范
@@ -81,13 +82,14 @@ MINOR/PATCH 取值 0–99；超过 99 时进位到上一位。
    ```powershell
    powershell -ExecutionPolicy Bypass -File .\scripts\release.ps1
    ```
-   生成 `dist/xxtT-v2.4.0.apk` 和 SHA-256。
-5. 打 Git tag：`v2.5.1`；GitHub Release 由 workflow 自动创建，**标题固定为 `v版本号`（即 tag 名）**，说明复用 `RELEASE_NOTES.md`。
+   生成 `dist/xxtT-v2.6.0.apk` 和 SHA-256。
+5. 打 Git tag：`v2.6.0`；GitHub Release 由 workflow 自动创建，**标题固定为 `v版本号`（即 tag 名）**，说明复用 `RELEASE_NOTES.md`。
 6. 必须始终用同一把 keystore 签后续版本，否则无法覆盖安装；安装包文件名统一为 `xxtT-v版本号.apk`。
 
 ## 当前版本
 
-- **2.5.1**（versionCode 20501）：课程表交互改进（空格子两次点击快速加课、课程块显示名称/地点/教师并放大字号、去掉隐藏、顶部“本周”按钮）；首页/个人页统一新 UI；使用原正式 keystore 签名。
+- **2.6.0**（versionCode 20600）：课表导入（Excel/CSV/HTML，预览、覆盖/合并）；快速加课可选结束节次并做时间冲突校验；示例数据脱敏。
+- 2.5.1（20501）课程表交互改进（空格子两次点击快速加课、课程块显示名称/地点/教师并放大字号、去掉隐藏、顶部“本周”按钮）；首页/个人页统一新 UI；使用原正式 keystore 签名。
 - 2.4.0（20400）学习通 / 雨课堂双账号同时登录、任务合并并标注来源；2.3.0（20300）新增雨课堂数据源；2.2.2（20202）修复应用内更新安装失败；2.2.1（20201）统一命名；2.2.0（20200）修正页内按钮；2.1.0（20100）加入应用内检查更新；2.0.0（20000）是签名迁移版本。
-- 下一版：2.5.2（PATCH，修 Bug）或 2.6.0（MINOR，课表导入）。
+- 下一版：2.6.1（PATCH，修 Bug）或 2.7.0（MINOR，教务系统网页抓取 / PDF 导入）。
 

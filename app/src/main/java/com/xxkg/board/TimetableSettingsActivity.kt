@@ -45,6 +45,9 @@ class TimetableSettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, PeriodSettingsActivity::class.java))
         }
         findViewById<View>(R.id.btnCourses).setOnClickListener { showCourseManager() }
+        findViewById<View>(R.id.btnImportTable).setOnClickListener {
+            startActivity(Intent(this, TimetableImportActivity::class.java))
+        }
         findViewById<View>(R.id.btnExport).setOnClickListener { exportJson() }
         findViewById<View>(R.id.btnImport).setOnClickListener { importJson() }
 

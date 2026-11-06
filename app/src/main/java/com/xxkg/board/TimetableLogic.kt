@@ -215,6 +215,41 @@ object TimetableLogic {
         return data.unscheduled.size + emptyCourses
     }
 
+    data class Conflict(val courseName: String, val segment: Segment)
+
+    /** 检查同一星期、节次重叠、且有共同周次的已有时间段。 */
+    fun conflicts(
+        data: TimetableData,
+        excludeSegmentId: String?,
+        day: Int,
+        startPeriod: Int,
+        endPeriod: Int,
+        weeks: Set<Int>,
+    ): List<Conflict> {
+        if (weeks.isEmpty() || startPeriod <= 0 || endPeriod < startPeriod) return emptyList()
+        val out = ArrayList<Conflict>()
+        for (s in data.segments) {
+            if (excludeSegmentId != null && s.id == excludeSegmentId) continue
+            if (s.day != day) continue
+            if (startPeriod > s.endPeriod || endPeriod < s.startPeriod) continue
+            if (s.weeks.none { it in weeks }) continue
+            out.add(Conflict(courseName(data, s.courseId), s))
+        }
+        return out.distinctBy { it.segment.id }
+    }
+
+    fun conflictMessage(conflicts: List<Conflict>): String {
+        if (conflicts.isEmpty()) return ""
+        val lines = conflicts.take(5).map {
+            "「${it.courseName}」${weekday(it.segment.day)} " +
+                "${periodText(it.segment.startPeriod, it.segment.endPeriod)} " +
+                "（${weeksText(it.segment.weeks)}）"
+        }
+        val more = if (conflicts.size > 5) "\n……还有 ${conflicts.size - 5} 条冲突" else ""
+        return "与以下课程时间重叠：\n" + lines.joinToString("\n") { "· $it" } + more +
+            "\n\n请调整结束节次，或换一个空白格子。"
+    }
+
     fun deleteCourse(data: TimetableData, courseId: String) {
         data.courses.removeAll { it.id == courseId }
         data.segments.removeAll { it.courseId == courseId }

@@ -122,8 +122,7 @@ class TimetableActivity : AppCompatActivity() {
         startActivityForResult(
             Intent(this, CourseEditActivity::class.java)
                 .putExtra(CourseEditActivity.EXTRA_QUICK_DAY, day)
-                .putExtra(CourseEditActivity.EXTRA_QUICK_START, period)
-                .putExtra(CourseEditActivity.EXTRA_QUICK_END, period),
+                .putExtra(CourseEditActivity.EXTRA_QUICK_START, period),
             REQ_EDIT
         )
     }

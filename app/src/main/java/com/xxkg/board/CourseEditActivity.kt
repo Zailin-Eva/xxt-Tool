@@ -3,8 +3,11 @@ package com.xxkg.board
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -23,6 +26,7 @@ class CourseEditActivity : AppCompatActivity() {
     private lateinit var btnDeleteCourse: TextView
     private lateinit var quickBox: View
     private lateinit var tvQuickTime: TextView
+    private lateinit var spQuickEnd: Spinner
     private lateinit var etQuickCampus: EditText
     private lateinit var etQuickLocation: EditText
     private var quickDay = 0
@@ -46,6 +50,7 @@ class CourseEditActivity : AppCompatActivity() {
         btnDeleteCourse = findViewById(R.id.btnDeleteCourse)
         quickBox = findViewById(R.id.quickBox)
         tvQuickTime = findViewById(R.id.tvQuickTime)
+        spQuickEnd = findViewById(R.id.spQuickEnd)
         etQuickCampus = findViewById(R.id.etQuickCampus)
         etQuickLocation = findViewById(R.id.etQuickLocation)
 
@@ -60,18 +65,31 @@ class CourseEditActivity : AppCompatActivity() {
             courseId = null
             quickDay = intent.getIntExtra(EXTRA_QUICK_DAY, 0)
             quickStart = intent.getIntExtra(EXTRA_QUICK_START, 0)
-            quickEnd = intent.getIntExtra(EXTRA_QUICK_END, quickStart)
-            if (quickDay in 1..7 && quickStart > 0) {
-                quickEnd = quickEnd.coerceAtLeast(quickStart)
-                quickBox.visibility = View.VISIBLE
-                tvQuickTime.text = buildString {
-                    append("保存后加入：")
-                    append(TimetableLogic.weekday(quickDay))
-                    append(" ")
-                    append(TimetableLogic.periodText(quickStart, quickEnd))
-                    append("  ")
-                    append(TimetableLogic.timeRange(data.periods, quickStart, quickEnd))
+            if (quickDay in 1..7 && quickStart > 0 && quickStart <= data.periods.size) {
+                val requestedEnd = intent.getIntExtra(EXTRA_QUICK_END, 0)
+                quickEnd = if (requestedEnd in quickStart..data.periods.size) {
+                    requestedEnd
+                } else {
+                    (quickStart + 1).coerceAtMost(data.periods.size)
                 }
+                val endPeriods = data.periods.filter { it.no >= quickStart }
+                val labels = endPeriods.map { "第${it.no}节  ${it.start}–${it.end}" }
+                spQuickEnd.adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    labels
+                ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+                spQuickEnd.setSelection((quickEnd - quickStart).coerceIn(0, (labels.size - 1).coerceAtLeast(0)))
+                spQuickEnd.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        quickEnd = quickStart + position
+                        updateQuickTime()
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+                }
+                quickBox.visibility = View.VISIBLE
+                updateQuickTime()
                 findViewById<View>(R.id.tvSegmentHint).visibility = View.GONE
                 findViewById<View>(R.id.tvSegmentSection).visibility = View.GONE
                 findViewById<View>(R.id.btnAddSegment).visibility = View.GONE
@@ -97,6 +115,17 @@ class CourseEditActivity : AppCompatActivity() {
         refreshSegments()
     }
 
+    private fun updateQuickTime() {
+        if (quickDay !in 1..7 || quickStart <= 0 || quickEnd < quickStart) return
+        tvQuickTime.text = buildString {
+            append(TimetableLogic.weekday(quickDay))
+            append("  ")
+            append(TimetableLogic.periodText(quickStart, quickEnd))
+            append("  ")
+            append(TimetableLogic.timeRange(data.periods, quickStart, quickEnd))
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_SEGMENT) {
@@ -113,6 +142,23 @@ class CourseEditActivity : AppCompatActivity() {
             return false
         }
         data = TimetableStore.load(this)
+        if (quickDay in 1..7 && quickStart > 0 && courseId == null) {
+            if (spQuickEnd.selectedItemPosition >= 0) {
+                quickEnd = quickStart + spQuickEnd.selectedItemPosition
+            }
+            val weeks = (1..data.term.totalWeeks.coerceAtLeast(1)).toMutableSet()
+            val conflicts = TimetableLogic.conflicts(
+                data, null, quickDay, quickStart, quickEnd, weeks
+            )
+            if (conflicts.isNotEmpty()) {
+                AlertDialog.Builder(this)
+                    .setTitle("时间冲突")
+                    .setMessage(TimetableLogic.conflictMessage(conflicts))
+                    .setPositiveButton("知道了", null)
+                    .show()
+                return false
+            }
+        }
         var course = data.course(courseId.orEmpty())
         if (course == null) {
             course = TtCourse(id = TimetableCodec.newId(), name = name)

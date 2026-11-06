@@ -62,7 +62,7 @@
             <EditText
                 android:id="@+id/etName"
                 style="@style/TtField"
-                android:hint="例如：大学物理"
+                android:hint="例如：高等数学"
                 android:textColorHint="@color/tt_muted2" />
 
             <TextView style="@style/TtLabel" android:text="教师" />
@@ -70,7 +70,7 @@
             <EditText
                 android:id="@+id/etTeacher"
                 style="@style/TtField"
-                android:hint="例如：王悦"
+                android:hint="例如：李老师"
                 android:textColorHint="@color/tt_muted2" />
 
             <TextView style="@style/TtLabel" android:text="学分（可选）" />
@@ -109,12 +109,25 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
+                <TextView style="@style/TtLabel" android:text="上到第几节" />
+
+                <Spinner
+                    android:id="@+id/spQuickEnd"
+                    android:prompt="@string/quick_end_prompt"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_field"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:spinnerMode="dialog" />
+
                 <TextView style="@style/TtLabel" android:text="校区（可选）" />
 
                 <EditText
                     android:id="@+id/etQuickCampus"
                     style="@style/TtField"
-                    android:hint="例如：沙河校区"
+                    android:hint="例如：主校区"
                     android:textColorHint="@color/tt_muted2" />
 
                 <TextView style="@style/TtLabel" android:text="地点" />
@@ -122,7 +135,7 @@
                 <EditText
                     android:id="@+id/etQuickLocation"
                     style="@style/TtField"
-                    android:hint="例如：沙河二教306"
+                    android:hint="例如：教学楼A101"
                     android:textColorHint="@color/tt_muted2" />
             </LinearLayout>
 

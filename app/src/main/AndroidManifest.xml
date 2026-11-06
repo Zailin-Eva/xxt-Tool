@@ -84,6 +84,12 @@
             android:name=".TimetableSettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.Board.Timetable" />
+
+        <activity
+            android:name=".TimetableImportActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Board.Timetable"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

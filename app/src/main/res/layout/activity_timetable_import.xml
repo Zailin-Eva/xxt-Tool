@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tt_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/TtTopBar">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="返回"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_back"
+            android:tint="@color/tt_ink" />
+
+        <TextView
+            style="@style/TtTitle"
+            android:layout_marginStart="6dp"
+            android:text="导入课表" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="18dp"
+            android:paddingTop="4dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="40dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="支持教务系统导出的 Excel（.xlsx）、CSV、网页（.html）。选文件后会先解析并预览，确认后再导入；覆盖或合并都可以。PDF 导入在下一阶段接入。"
+                android:textColor="@color/tt_muted"
+                android:textSize="10.5sp"
+                android:lineSpacingExtra="3dp" />
+
+            <TextView
+                android:id="@+id/btnPick"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_pill_dark"
+                android:gravity="center"
+                android:text="选择 Excel / CSV / HTML 文件"
+                android:textColor="@color/tt_surface"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvFile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text=""
+                android:textColor="@color/tt_muted2"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/tvCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text=""
+                android:textColor="@color/tt_ink"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:lineSpacingExtra="3dp"
+                android:text=""
+                android:textColor="@color/tt_ink"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvWarnings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:lineSpacingExtra="3dp"
+                android:text=""
+                android:textColor="@color/tt_danger"
+                android:textSize="10.5sp" />
+
+            <LinearLayout
+                android:id="@+id/importActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/btnReplace"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_pill_dark"
+                    android:gravity="center"
+                    android:text="覆盖导入"
+                    android:textColor="@color/tt_surface"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/btnMerge"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_pill"
+                    android:gravity="center"
+                    android:text="合并导入"
+                    android:textColor="@color/tt_ink"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

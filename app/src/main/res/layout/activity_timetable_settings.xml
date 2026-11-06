@@ -223,6 +223,20 @@
                     android:letterSpacing="0.08" />
 
                 <TextView
+                    android:id="@+id/btnImportTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:gravity="center_vertical"
+                    android:text="导入 Excel / CSV / HTML 课表"
+                    android:textColor="@color/tt_ink"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/tt_line" />
+
+                <TextView
                     android:id="@+id/btnExport"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"

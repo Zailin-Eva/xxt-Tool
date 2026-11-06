@@ -181,7 +181,7 @@
             <EditText
                 android:id="@+id/etCampus"
                 style="@style/TtField"
-                android:hint="例如：沙河校区"
+                android:hint="例如：主校区"
                 android:textColorHint="@color/tt_muted2" />
 
             <TextView style="@style/TtLabel" android:text="地点" />
@@ -189,7 +189,7 @@
             <EditText
                 android:id="@+id/etLocation"
                 style="@style/TtField"
-                android:hint="例如：沙河二教306 / 体育场"
+                android:hint="例如：教学楼A101 / 体育馆"
                 android:textColorHint="@color/tt_muted2" />
 
             <TextView style="@style/TtLabel" android:text="教师（可选）" />
