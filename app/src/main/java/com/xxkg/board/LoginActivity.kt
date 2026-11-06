@@ -2,12 +2,19 @@ package com.xxkg.board
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -17,7 +24,6 @@ import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.net.HttpURLConnection
 import java.net.URL
@@ -48,12 +54,20 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         prefs = Prefs.get(this)
         setContentView(R.layout.activity_login)
+        window.statusBarColor = Palette.BG
+        window.navigationBarColor = Palette.BG
+        var flags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        if (Build.VERSION.SDK_INT >= 26) {
+            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
+        window.decorView.systemUiVisibility = flags
 
         webView = findViewById(R.id.webView)
         progress = findViewById(R.id.progress)
         tvTitle = findViewById(R.id.tvLoginTitle)
         tvHint = findViewById(R.id.tvHint)
 
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.btnClose).setOnClickListener { finish() }
         findViewById<TextView>(R.id.btnSwitch).setOnClickListener { showChooser() }
 
@@ -135,19 +149,37 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showChooser() {
-        val items = arrayOf("学习通登录", "雨课堂登录")
-        AlertDialog.Builder(this)
-            .setTitle("选择登录方式")
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> startLogin(Provider.CHAOXING)
-                    1 -> startLogin(Provider.YUKETANG)
-                }
-            }
-            .setNegativeButton("取消") { _, _ ->
-                if (!done) finish()
-            }
-            .show()
+        val view = layoutInflater.inflate(R.layout.dialog_login_chooser, null)
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(view)
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        dialog.window?.setDimAmount(0.42f)
+
+        view.findViewById<View>(R.id.optChaoxing).setOnClickListener {
+            dialog.dismiss()
+            startLogin(Provider.CHAOXING)
+        }
+        view.findViewById<View>(R.id.optYuketang).setOnClickListener {
+            dialog.dismiss()
+            startLogin(Provider.YUKETANG)
+        }
+        view.findViewById<View>(R.id.btnCancel).setOnClickListener {
+            dialog.dismiss()
+            if (!done) finish()
+        }
+        dialog.setOnCancelListener {
+            if (!done) finish()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+        )
+        dialog.window?.setGravity(Gravity.BOTTOM)
     }
 
     private fun startLogin(provider: Provider) {

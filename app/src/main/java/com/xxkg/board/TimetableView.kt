@@ -348,8 +348,8 @@ class TimetableView @JvmOverloads constructor(
         val teacher = s.teacher.ifBlank { course.teacher }
 
         if (location.isNotEmpty() && bottomLimit - y >= bodyLineH * 0.9f) {
-            var locLines = ((bottomLimit - y) / bodyLineH).toInt()
-            if (teacher.isNotBlank()) locLines -= 1
+            // 教室优先用满剩余空间；老师只在还有整行时才显示，放不下就省略
+            val locLines = ((bottomLimit - y) / bodyLineH).toInt()
             if (locLines >= 1) {
                 val locH = drawLayout(canvas, location, locPaint, textW, locLines, textX, y)
                 y += locH + gap

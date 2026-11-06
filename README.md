@@ -10,7 +10,7 @@
 - 纯本地运行，登录态只存在本机（Android Keystore 加密）
 - 安装包命名统一为 `xxtT-v版本号.apk`；GitHub Release 标题统一为 `v版本号`
 
-当前版本：**2.7.1**（versionCode 20701），版本规则见 [VERSIONING.md](VERSIONING.md)。
+当前版本：**2.7.2**（versionCode 20702），版本规则见 [VERSIONING.md](VERSIONING.md)。
 
 ## 功能
 
@@ -62,7 +62,7 @@
 - **MINOR**：新增用户可见功能，清零 PATCH；
 - **PATCH**：只修 Bug/文案/样式。
 
-`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.7.1 = 20701。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
+`versionCode = MAJOR × 10000 + MINOR × 100 + PATCH`；当前 2.7.2 = 20702。每次交付至少 +1 PATCH。完整规则和发布流程见 [VERSIONING.md](VERSIONING.md)，每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 原理
 
@@ -110,10 +110,10 @@
 
 两种方式：
 
-1. **正式 2.7.1 包**：**[`dist/xxtT-v2.7.1.apk`](dist/xxtT-v2.7.1.apk)**（release 签名，与 2.1.x–2.7.0 同一把 key）。可直接覆盖 2.7.0 安装，登录/缓存保留。
-2. **开发调试包**：本地运行 `scripts/build.ps1` 生成 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.7.1-debug`，debug 签名）。debug 与正式包签名不同，**不能覆盖正式包**；测试请用模拟器或先卸载。
+1. **正式 2.7.2 包**：**[`dist/xxtT-v2.7.2.apk`](dist/xxtT-v2.7.2.apk)**（release 签名，与 2.1.x–2.7.1 同一把 key）。可直接覆盖 2.7.1 安装，登录/缓存保留。
+2. **开发调试包**：本地运行 `scripts/build.ps1` 生成 `app/build/outputs/apk/debug/app-debug.apk`（版本名 `2.7.2-debug`，debug 签名）。debug 与正式包签名不同，**不能覆盖正式包**；测试请用模拟器或先卸载。
 
-> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.7.1.apk`）。正式发布包用 `scripts/release.ps1` 生成；`keystore.properties` 与 `signing/*.jks` 不入库。
+> 安装包命名规范：`xxtT-v版本号.apk`（例如 `xxtT-v2.7.2.apk`）。正式发布包用 `scripts/release.ps1` 生成；`keystore.properties` 与 `signing/*.jks` 不入库。
 
 传到手机安装（需允许「安装未知来源应用」）。
 
@@ -194,7 +194,7 @@ RELEASE_NOTES.md        当前 Release 说明
 
 - 仅供个人学习、自用。不隶属超星/学习通官方，也未获得其授权；请遵守学校与平台的使用条款，不要用于刷课、代做等违规用途。
 - 作业看板只读展示，不会替你做作业、交作业。
-- 课程表 2.7.1 支持手动维护、JSON 备份和 Excel/CSV/HTML/PDF（文字型）导入；扫描件 OCR 和教务系统网页抓取在后续版本。
+- 课程表 2.7.2 支持手动维护、JSON 备份和 Excel/CSV/HTML/PDF（文字型）导入；扫描件 OCR 和教务系统网页抓取在后续版本。
 - 学习通改版会导致页面选择器失效，需要跟着改；`个人 → 抓取日志` 能看到是哪一步失败。
 - 截止时间需要逐条打开作业详情页（只打开未交/过期/近期完成的，通常 20–30 个请求），网络慢时会多等几秒。
 

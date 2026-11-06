@@ -24,5 +24,7 @@ cookie*.txt
 
 toolchain/
 
-# 允许提交发布用的安装包
+# 锟斤拷锟斤拷锟结交锟斤拷锟斤拷锟矫的帮拷装锟斤拷
 !dist/*.apk
+
+dist/*-debug.apk
