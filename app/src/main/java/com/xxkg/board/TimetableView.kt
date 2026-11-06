@@ -334,28 +334,31 @@ class TimetableView @JvmOverloads constructor(
         teacherPaint.color = if (active) Palette.MUTED2 else Palette.NONCURRENT_INK
 
         val available = (rect.bottom - textY - 3f * density)
-        val titleLines = when {
-            available < 52f * density -> 2
-            available < 78f * density -> 3
-            else -> 4
-        }
+        val titleLineH = titlePaint.fontSpacing * 1.05f
+        val titleLines = (available / titleLineH).toInt().coerceIn(1, 4)
         val titleH = drawLayout(canvas, course.name, titlePaint, textW, titleLines, textX, textY)
 
-        var locH = 0
+        // 名称、地点、教师都按可用高度自动换行；只有整块真的放不下时才省略
+        val gap = 1.5f * density
+        val bodyLineH = locPaint.fontSpacing * 1.05f
+        val bottomLimit = rect.bottom - 3f * density
+        var y = textY + titleH + gap
+
         val location = listOf(s.campus, s.location).filter { it.isNotBlank() }.joinToString(" ")
-        if (location.isNotEmpty() && rect.bottom - (textY + titleH) > 12f * density) {
-            locH = drawLayout(
-                canvas, location, locPaint, textW, 2,
-                textX, textY + titleH + 1.5f * density
-            )
+        val teacher = s.teacher.ifBlank { course.teacher }
+
+        if (location.isNotEmpty() && bottomLimit - y >= bodyLineH * 0.9f) {
+            var locLines = ((bottomLimit - y) / bodyLineH).toInt()
+            if (teacher.isNotBlank()) locLines -= 1
+            if (locLines >= 1) {
+                val locH = drawLayout(canvas, location, locPaint, textW, locLines, textX, y)
+                y += locH + gap
+            }
         }
 
-        val teacher = s.teacher.ifBlank { course.teacher }
-        if (teacher.isNotBlank() && rect.bottom - (textY + titleH + locH) > 10f * density) {
-            drawLayout(
-                canvas, teacher, teacherPaint, textW, 1,
-                textX, textY + titleH + locH + 1.5f * density
-            )
+        if (teacher.isNotBlank() && bottomLimit - y >= bodyLineH * 0.9f) {
+            val teacherLines = ((bottomLimit - y) / bodyLineH).toInt().coerceAtLeast(1)
+            drawLayout(canvas, teacher, teacherPaint, textW, teacherLines, textX, y)
         }
 
         canvas.restore()

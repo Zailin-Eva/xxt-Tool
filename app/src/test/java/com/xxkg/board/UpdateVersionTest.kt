@@ -2,6 +2,7 @@ package com.xxkg.board
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class UpdateVersionTest {
@@ -20,5 +21,15 @@ class UpdateVersionTest {
         assertNull(UpdateChecker.parseVersionCode("v2"))
         assertNull(UpdateChecker.parseVersionCode("abc"))
         assertNull(UpdateChecker.parseVersionCode(""))
+    }
+
+    @Test
+    fun `下载地址包含直连和镜像`() {
+        val direct = "https://github.com/siye4366/xxt-Tool/releases/download/v2.7.0/xxtT-v2.7.0.apk"
+        val urls = UpdateChecker.downloadUrls(direct)
+        assertTrue(urls.size >= 2)
+        assertEquals(direct, urls.first())
+        assertTrue(urls.drop(1).all { it.endsWith(direct) && it.startsWith("https://") })
+        assertTrue(UpdateChecker.downloadUrls("").isEmpty())
     }
 }

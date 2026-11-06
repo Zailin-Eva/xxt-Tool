@@ -187,20 +187,20 @@ class TimetableActivity : AppCompatActivity() {
     }
 
     private fun showWeekPicker() {
-        val total = data.term.totalWeeks.coerceAtLeast(1)
-        val items = (1..total).map {
-            "第 $it 周 · ${TimetableLogic.weekShortRange(data.term, it)}"
-        }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("选择周次")
-            .setItems(items) { _, which ->
-                clearPending()
-                week = which + 1
-                render()
-                scroll.post { scroll.scrollTo(0, 0) }
-            }
-            .setNegativeButton("取消", null)
-            .show()
+        val total = data.term.totalWeeks.coerceIn(1, 30)
+        val current = TimetableLogic.weekNumber(data.term, System.currentTimeMillis())
+        WeekPickerSheet.show(
+            this,
+            data.term,
+            current,
+            week.coerceIn(1, total),
+            Palette.accentColor(prefs.accent),
+        ) { picked ->
+            clearPending()
+            week = picked.coerceIn(1, total)
+            render()
+            scroll.post { scroll.scrollTo(0, 0) }
+        }
     }
 
     // ------------------------------------------------------------ 详情

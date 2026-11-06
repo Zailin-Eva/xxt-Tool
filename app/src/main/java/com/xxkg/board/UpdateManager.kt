@@ -159,7 +159,12 @@ object UpdateManager {
             }
             if (!ok) {
                 installing = false
-                toast(activity, "下载失败，请稍后再试")
+                AlertDialog.Builder(activity)
+                    .setTitle("下载失败")
+                    .setMessage("已尝试直连和镜像。可以在浏览器打开发布页手动下载安装包。")
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("打开网页") { _, _ -> openProjectPage(activity) }
+                    .show()
                 return@launch
             }
             val error = withContext(Dispatchers.IO) { verifyApk(activity, file) }
@@ -175,8 +180,23 @@ object UpdateManager {
     }
 
     private fun download(info: UpdateInfo, file: File, onProgress: (Int) -> Unit): Boolean {
+        val urls = UpdateChecker.downloadUrls(info.apkUrl)
+        for ((index, url) in urls.withIndex()) {
+            if (index > 0) DebugLog.log("下载改用镜像: ${url.take(80)}")
+            if (downloadFrom(url, info, file, onProgress)) return true
+            if (file.exists()) file.delete()
+        }
+        return false
+    }
+
+    private fun downloadFrom(
+        url: String,
+        info: UpdateInfo,
+        file: File,
+        onProgress: (Int) -> Unit,
+    ): Boolean {
         val request = Request.Builder()
-            .url(info.apkUrl)
+            .url(url)
             .header("User-Agent", "xxtT")
             .build()
         return try {
